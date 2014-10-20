@@ -31,7 +31,7 @@ namespace loudness{
      *
      * The architecture of this class is similar to the abstract class Module,
      * but allows for accessing the outputs of multiple processing modules. A
-     * reference to an input SignalBank is first passed to initialize() which in
+     * reference to an input SignalBankBank is first passed to initialize() which in
      * turn calls the pure virtual function initializeInternal(). Thus, all
      * derived models must implement this function. It is here where multiple
      * modules are instantiated, initialised and connected.  A vector of module
@@ -52,7 +52,7 @@ namespace loudness{
         /**
         * @brief Constructs a model to operate at @a rate Hz.
         * 
-        * The frameRate of the SignalBank used to initialise the model
+        * The frameRate of the SignalBankBank used to initialise the model
         * should not be less than @a rate.
         *
         * @param rate
@@ -63,26 +63,26 @@ namespace loudness{
         /**
         * @brief Initialises the model and all associated modules.
         *
-        * The frameRate of the SignalBank used to initialise the model
+        * The frameRate of the SignalBankBank used to initialise the model
         * should not be less than the model rate. If it is, the rate is
         * automatically corrected.
         *
-        * @param input The input SignalBank.
+        * @param input The input SignalBankBank.
         *
         * @return 
         */
-        bool initialize(const SignalBank &input);
+        bool initialize(const SignalBankBank &input);
 
         /**
-        * @brief Processes the input SignalBank.
+        * @brief Processes the input SignalBankBank.
         *
-        * @param input The input SignalBank to be processed. Must be same
+        * @param input The input SignalBankBank to be processed. Must be same
         * structure as the one used to initialise the module.
         */
-        void process(const SignalBank &input);
+        void process(const SignalBankBank &input);
 
         /**
-        * @brief Resets all modules. The output SignalBanks are also cleared.
+        * @brief Resets all modules. The output SignalBankBanks are also cleared.
         */
         void reset();
 
@@ -101,13 +101,13 @@ namespace loudness{
         bool isDynamicModel() const;
 
         /**
-         * @brief Returns a pointer to the output SignalBank of @a module.
+         * @brief Returns a pointer to the output SignalBankBank of @a module.
          *
          * @param module Module index.
          *
-         * @return SignalBank pointer.
+         * @return SignalBankBank pointer.
          */
-        const SignalBank* getModuleOutput(int module) const;
+        const SignalBankBank* getModuleOutput(int module) const;
         
         /**
          * @brief Returns the number of initialised modules comprising the
@@ -119,7 +119,7 @@ namespace loudness{
         const string& getName() const;
 
     protected:
-        virtual bool initializeInternal(const SignalBank &input) = 0;
+        virtual bool initializeInternal(const SignalBankBank &input) = 0;
 
         string name_;
         bool dynamicModel_, initialized_;

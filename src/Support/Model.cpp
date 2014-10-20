@@ -30,7 +30,7 @@ namespace loudness{
 
     Model::~Model() {}
 
-    bool Model::initialize(const SignalBank &input)
+    bool Model::initialize(const SignalBankBank &input)
     {
         if(!initializeInternal(input))
         {
@@ -57,7 +57,7 @@ namespace loudness{
         }
     }
 
-    void Model::process(const SignalBank &input)
+    void Model::process(const SignalBankBank &input)
     {
         if(initialized_)
             modules_[0]->process(input);
@@ -70,7 +70,7 @@ namespace loudness{
         modules_[0]->reset();
     }
 
-    const SignalBank* Model::getModuleOutput(int module) const
+    const SignalBankBank* Model::getModuleOutput(int module) const
     {
         if (module<nModules_)
             return modules_[module]->getOutput();
