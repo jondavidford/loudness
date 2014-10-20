@@ -88,12 +88,42 @@ namespace loudness{
                 eNoise = masker.getSample(i, 0);
 
                 //high level
-                if (eSig + eNoise > 1e10 && eSig > eThrqParam_[i])
+                if (eSig + eNoise > 1e10)
                 {
-                    sl = c2Param_ * (exc)
+                    if (eSig >= eThrqParam_[i]) // equation 19 from GM 1997
+                    {
+                        sl = c2Param_ * pow(eSig + eNoise, 0.5)
+                                - c2Param * (pow((1 + kParam_) * eNoise + eThrqParam_[i], 0.5)
+                                                - pow(eThrqParam_[i] * gParam[i] + aParam_[i], alphaParam_[i])
+                                                + pow(aParam_[i], alphaParam_[i]))
+                                            * pow(eThrqParam_[i] / eSig, 0.3);
+                    }
+                    else // equation 20 from GM 1997
+                    {
+                        sl = cParam
+                            * pow(2 * eSig / (eSig + eThrqParam_[i]), 1.5)
+                            * ((pow(eThrqParam_[i] * gParam_[i] + aParam_[i], alphaParam_[i])
+                                    - pow(aParam_[i], alphaParam_[i]))
+                                / (pow(eNoise * (1 + kParam_) + eThrqParam_[i], 0.5) - pow(eNoise, 0.5)))
+                            * (pow(eSig + eNoise, 0.5) - pow(eNoise, 0.5));
+                    }
                 }
-                else if(i<nFiltersLT500_) //low freqs
-                { 
+                else // eSig + eNoise <= 1e10
+                {
+                    if (eSig >= eThrnParam_[i])
+                    {
+                        sl = cParam * (pow((eSig + eNoise) * gParam_[i] + aParam_[i], alphaParam_[i])
+                                        - pow(aParam_[i], alphaParam_[i]))
+                            - cParam
+                                * (pow((eNoise * (1 + kParam_) + eThrqParam_[i]) * gParam_[i] + aParam_[i], alphaParam_[i])
+                                    - pow(eThrqParam_[i] * gParam_[i] + aParam_[i], alphaParam_[i]))
+                                * pow(eThrnParam_[i] / eSig, 0.3);
+                    }
+                    else
+                    {
+
+                    }
+
                     if(excLin>eThrqParam_[i]) //medium level
                     {
                         sl = (pow(gParam_[i]*excLin+aParam_[i], alphaParam_[i])-
