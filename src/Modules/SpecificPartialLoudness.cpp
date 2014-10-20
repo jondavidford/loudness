@@ -76,23 +76,21 @@ namespace loudness{
 
     void SpecificPartialLoudnessGM::processInternal(const SignalBankBank &input)
     {
-        Real excLin, sl=0.0;
+        Real eSig, eNoise, sl=0.0;
+        SignalBank masker;
 
         for(int track=0; track<input.getNTracks(); track++)
         {
             masker = input.sumSignalBanksExcept(track);
             for(int i=0; i<input.getSignalBank(track).getNChannels(); i++)
             {
-                excLin = input.getSignalBank(track).getSample(i,0);
-                excNoise = masker.getSample(i, 0);
+                eSig = input.getSignalBank(track).getSample(i,0);
+                eNoise = masker.getSample(i, 0);
 
                 //high level
-                if (excLin + excNoise > 1e10 && excLin > eThrqParam_[i])
+                if (eSig + eNoise > 1e10 && eSig > eThrqParam_[i])
                 {
-                    if(ansiS3407_)
-                        sl = pow((excLin/1.0707),0.2);
-                    else
-                        sl = pow((excLin/1.04e6),0.5);
+                    sl = c2Param_ * (exc)
                 }
                 else if(i<nFiltersLT500_) //low freqs
                 { 
