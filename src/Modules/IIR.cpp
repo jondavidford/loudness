@@ -34,7 +34,7 @@ namespace loudness{
     {
     }
 
-    bool IIR::initializeInternal(const SignalBank &input)
+    bool IIR::initializeInternal(const TrackBank &input)
     {
 
         //constants
@@ -61,8 +61,8 @@ namespace loudness{
             //delay line
             z_.assign(order_,0.0);
 
-            //output SignalBank
-            output_.initialize(input.getNChannels(), input.getNSamples(), input.getFs());
+            //output TrackBank
+            output_.initialize(input.getNTracks(), input.getNChannels(), input.getNSamples(), input.getFs());
 
             return 1;
         }
@@ -72,26 +72,29 @@ namespace loudness{
         }
     }
 
-    void IIR::processInternal(const SignalBank &input)
+    void IIR::processInternal(const TrackBank &input)
     {
         int smp, j;
         Real x,y;
 
-        for(smp=0; smp<input.getNSamples(); smp++)
+        for(int track = 0; track < input.getNTracks(); track++)
         {
-            //input sample
-            x = input.getSample(0, smp) * gain_;
+            for(smp=0; smp<input.getNSamples(); smp++)
+            {
+                //input sample
+                x = input.getSample(track, 0, smp) * gain_;
 
-            //output sample
-            y = bCoefs_[0] * x + z_[0];
-            output_.setSample(0, smp, y);
+                //output sample
+                y = bCoefs_[0] * x + z_[0];
+                output_.setSample(track, 0, smp, y);
 
-            //fill delay
-            for (j=1; j<order_; j++)
-                z_[j-1] = bCoefs_[j] * x + z_[j] - aCoefs_[j] * y;
+                //fill delay
+                for (j=1; j<order_; j++)
+                    z_[j-1] = bCoefs_[j] * x + z_[j] - aCoefs_[j] * y;
 
-            //final sample
-            z_[orderMinus1_] = bCoefs_[order_] * x - aCoefs_[order_] * y;
+                //final sample
+                z_[orderMinus1_] = bCoefs_[order_] * x - aCoefs_[order_] * y;
+            }
         }
     }
 

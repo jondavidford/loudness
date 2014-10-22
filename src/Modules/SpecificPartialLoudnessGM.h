@@ -63,16 +63,16 @@ namespace loudness{
 
     private:
 
-        virtual bool initializeInternal(const SignalBankBank &input);
+        virtual bool initializeInternal(const TrackBank &input);
 
-        virtual void processInternal(const SignalBankBank &input);
+        virtual void processInternal(const TrackBank &input);
 
         virtual void resetInternal();
 
         bool ansiS3407_;
         int nFiltersLT500_;
         Real cParam_, c2Param;
-        RealVec eThrqParam_, gParam_, aParam_, alphaParam_;
+        RealVec eThrqParam_, eThrnParam_, gParam_, aParam_, alphaParam_, kParam_;
     };
 }
 

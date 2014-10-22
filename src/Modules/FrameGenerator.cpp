@@ -31,7 +31,7 @@ namespace loudness{
     {
     }
 
-    bool FrameGenerator::initializeInternal(const SignalBank &input)
+    bool FrameGenerator::initializeInternal(const TrackBank &input)
     {
         if(hopSize_ > frameSize_)
         {
@@ -107,35 +107,38 @@ namespace loudness{
         return 1;
     }
 
-    void FrameGenerator::processInternal(const SignalBank &input)
+    void FrameGenerator::processInternal(const TrackBank &input)
     {
 
         //fill internal buffer
-        for(int i=0; i<inputBufferSize_; i++)
-            audioBuffer_[writeIdx_++] = input.getSample(0, i);
-        //wrap write index
-        writeIdx_ = writeIdx_ % audioBufferSize_;
-
-        count_++;
-        if(count_ == initNFramesFull_)
+        for (int track=0; track < input.getNTracks(); track++)
         {
-            LOUDNESS_DEBUG(name_ << ": readIdx_ : " << readIdx_);
+            for(int i=0; i<inputBufferSize_; i++)
+                audioBuffer_[writeIdx_++] = input.getSample(track, 0, i);
+            //wrap write index
+            writeIdx_ = writeIdx_ % audioBufferSize_;
 
-            //output frame
-            for(int i=0; i<frameSize_; i++)
+            count_++;
+            if(count_ == initNFramesFull_)
             {
-                output_.setSample(0, i, audioBuffer_[readIdx_++]);
-                readIdx_ = readIdx_ % audioBufferSize_;
+                LOUDNESS_DEBUG(name_ << ": readIdx_ : " << readIdx_);
+
+                //output frame
+                for(int i=0; i<frameSize_; i++)
+                {
+                    output_.setSample(track, 0, i, audioBuffer_[readIdx_++]);
+                    readIdx_ = readIdx_ % audioBufferSize_;
+                }
+                readIdx_ = (writeIdx_ + hopSize_) % audioBufferSize_;
+
+                output_.setTrig(track, 1);
+
+                count_ = 0;
+                initNFramesFull_ = nFramesFull_;
             }
-            readIdx_ = (writeIdx_ + hopSize_) % audioBufferSize_;
-
-            output_.setTrig(1);
-
-            count_ = 0;
-            initNFramesFull_ = nFramesFull_;
+            else
+                output_.setTrig(track, 0);
         }
-        else
-            output_.setTrig(0);
     }
 
     void FrameGenerator::resetInternal()

@@ -27,11 +27,11 @@ namespace loudness{
     /**
      * @class FrameGenerator
      * 
-     * @brief Generates a frame of samples from an input SignalBank.
+     * @brief Generates a frame of samples from an input TrackBank.
      *
      * This algorithm was developed for use with PowerSpectrum. In the current
      * (not so flexible) implementation, the number of samples in the input
-     * SignalBank cannot be greater than the hop size. If this happens, the hop
+     * TrackBank cannot be greater than the hop size. If this happens, the hop
      * size is automatically adjusted. Furthermore, the hop size must be less
      * than or equal to the frame size. In general, stick to powers of two.
      *
@@ -76,8 +76,8 @@ namespace loudness{
 
     private:
 
-        virtual bool initializeInternal(const SignalBank &input);
-        virtual void processInternal(const SignalBank &input);
+        virtual bool initializeInternal(const TrackBank &input);
+        virtual void processInternal(const TrackBank &input);
         virtual void resetInternal();
 
         int frameSize_, hopSize_, audioBufferSize_, inputBufferSize_;

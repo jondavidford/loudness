@@ -135,7 +135,7 @@ namespace loudness{
         }
     }
 
-    bool DynamicPartialLoudnessGM::initializeInternal(const SignalBankBank &input)
+    bool DynamicPartialLoudnessGM::initializeInternal(const TrackBank &input)
     {
         /*
          * Outer-Middle ear filter 

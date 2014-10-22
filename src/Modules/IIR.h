@@ -25,7 +25,7 @@
 /*
  * =====================================================================================
  *        Class:  IIR
- *  Description:  Performs IIR filtering of an input SignalBank using direct form 2.
+ *  Description:  Performs IIR filtering of an input TrackBank using direct form 2.
  *
  * =====================================================================================
  */
@@ -52,23 +52,23 @@ namespace loudness{
             *       Class:  IIR
             *      Method:  IIR :: initializeInternal
             * Description:  Sets the filter order, initializes the delay line and 
-            *               configures the output SignalBank.  
-            *  Parameters:  input:  The SignalBank to be filtered.
+            *               configures the output TrackBank.  
+            *  Parameters:  input:  The TrackBank to be filtered.
             *--------------------------------------------------------------------------------------
             */
         private:
 
-            virtual bool initializeInternal(const SignalBank &input);
+            virtual bool initializeInternal(const TrackBank &input);
             /*
             *--------------------------------------------------------------------------------------
             *       Class:  IIR
             *      Method:  IIR :: ProcessInternal
-            * Description:  Performs IIR filtering of the input SignalBank.
-            *               Filtered data is stored in the output SignalBank.
-            *  Parameters:  input:  The SignalBank to be filtered.
+            * Description:  Performs IIR filtering of the input TrackBank.
+            *               Filtered data is stored in the output TrackBank.
+            *  Parameters:  input:  The TrackBank to be filtered.
             *--------------------------------------------------------------------------------------
             */
-            virtual void processInternal(const SignalBank &input);
+            virtual void processInternal(const TrackBank &input);
             virtual void resetInternal();
     };
 }

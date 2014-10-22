@@ -35,7 +35,7 @@ namespace loudness{
 
     WeightSpectrum::~WeightSpectrum() {}
 
-    bool WeightSpectrum::initializeInternal(const SignalBank &input)
+    bool WeightSpectrum::initializeInternal(const TrackBank &input)
     {
         if(usingOME_)
         {
@@ -50,7 +50,7 @@ namespace loudness{
             weights_.assign(input.getNChannels(), 1.0);
         }
         
-        //set output SignalBank
+        //set output TrackBank
         output_.initialize(input);
 
         //convert to linear power units for weighting power spectrum
@@ -62,10 +62,13 @@ namespace loudness{
         return 1;
     }
 
-    void WeightSpectrum::processInternal(const SignalBank &input)
+    void WeightSpectrum::processInternal(const TrackBank &input)
     {
-        for(int i=0; i<input.getNChannels(); i++)
-            output_.setSample(i, 0, input.getSample(i,0)*weights_[i]);
+        for (int track = 0; track < input.getNTracks(); track++)
+        {
+            for(int i=0; i<input.getNChannels(); i++)
+                output_.setSample(i, 0, input.getSample(i,0)*weights_[i]);
+        }
     }
 
     void WeightSpectrum::setWeights(const RealVec &weights)

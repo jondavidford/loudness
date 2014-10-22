@@ -112,7 +112,7 @@ namespace loudness{
             Real getTimeStep() const;
             
         private:
-            virtual bool initializeInternal(const SignalBankBank &input);
+            virtual bool initializeInternal(const TrackBank &input);
 
             int outerEarType_;
             Real timeStep_, filterSpacing_, compressionCriterion_;

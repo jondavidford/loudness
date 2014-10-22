@@ -26,10 +26,10 @@
 namespace loudness{
 
     /**
-     * @class SignalBank
-     * @brief Filters an input SignalBank by applying a set of weights.
+     * @class TrackBank
+     * @brief Filters an input TrackBank by applying a set of weights.
      *
-     * This algorithm scales an input SignalBank using the set of weights. The
+     * This algorithm scales an input TrackBank using the set of weights. The
      * weights should be specified in decibels. As the name implies, this module
      * is used for modifying a short-time power spectrum, such as the kind
      * output by PowerSpectrum.
@@ -67,9 +67,9 @@ namespace loudness{
         void setWeights(const RealVec &weights);
 
     private:
-        virtual bool initializeInternal(const SignalBank &input);
+        virtual bool initializeInternal(const TrackBank &input);
 
-        virtual void processInternal(const SignalBank &input);
+        virtual void processInternal(const TrackBank &input);
 
         virtual void resetInternal();
 

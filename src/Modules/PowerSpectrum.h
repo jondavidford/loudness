@@ -58,13 +58,13 @@ namespace loudness{
 
     /**
      * @class PowerSpectrum
-     * @brief Computes the power spectrum (PS) of an input SignalBank.  A
+     * @brief Computes the power spectrum (PS) of an input TrackBank.  A
      * mulit-resolution PowerSpectrum can be obtained by specifying different
      * frequency bands along with the corresponding window lengths.  When the
      * FFT size is greater than the window size, casual zero padding is used.
      * All windows are aligned at their temporal centered.
      *
-     * It is advised that the input SignalBank has the correct frameRate when
+     * It is advised that the input TrackBank has the correct frameRate when
      * initialising this object.
      */
     class PowerSpectrum: public Module
@@ -77,9 +77,9 @@ namespace loudness{
 
     private:
 
-        virtual bool initializeInternal(const SignalBank &input);
+        virtual bool initializeInternal(const TrackBank &input);
 
-        virtual void processInternal(const SignalBank &input);
+        virtual void processInternal(const TrackBank &input);
 
         virtual void resetInternal();
 

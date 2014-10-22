@@ -53,6 +53,11 @@ namespace loudness{
         return 21.366*log10(4368e-6*freq+1);
     }
 
+    inline Real FreqToKParam(Real freq)
+    {
+        return 0;
+    }
+
     /**
      * @brief Converts ERB number in Cams to frequency in Hz.
      *

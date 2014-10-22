@@ -29,7 +29,7 @@ namespace loudness{
 
     SpecificPartialLoudnessGM::~SpecificPartialLoudnessGM() {}
 
-    bool SpecificPartialLoudnessGM::initializeInternal(const SignalBankBank &input)
+    bool SpecificPartialLoudnessGM::initializeInternal(const TrackBank &input)
     {
         //c value from ANSI 2007
         cParam_ = 0.046871;
@@ -68,13 +68,13 @@ namespace loudness{
         }
         LOUDNESS_DEBUG("SpecificPartialLoudnessGM: number of filters <500 Hz: " << nFiltersLT500_);
 
-        //output SignalBankBank
+        //output TrackBank
         output_.initialize(input);
 
         return 1;
     }
 
-    void SpecificPartialLoudnessGM::processInternal(const SignalBankBank &input)
+    void SpecificPartialLoudnessGM::processInternal(const TrackBank &input)
     {
         Real eSig, eNoise, sl=0.0;
         SignalBank masker;
@@ -82,7 +82,7 @@ namespace loudness{
         for(int track=0; track<input.getNTracks(); track++)
         {
             masker = input.sumSignalBanksExcept(track);
-            for(int i=0; i<input.getSignalBank(track).getNChannels(); i++)
+            for(int i=0; i<input.getNChannels(); i++)
             {
                 eSig = input.getSignalBank(track).getSample(i,0);
                 eNoise = masker.getSample(i, 0);
@@ -121,7 +121,11 @@ namespace loudness{
                     }
                     else
                     {
-
+                        sl = cParam
+                            * pow(2 * eSig / (eSig + eThrqParam_[i]), 1.5)
+                            * ((pow(eThrqParam_[i] * gParam_[i] + aParam_[i], alphaParam_[i])
+                                    - pow(aParam_[i], alphaParam_[i]))
+                                / (pow(eNoise * (1 + kParam_) + eThrqParam_[i], 0.5) - pow(eNoise, 0.5)))
                     }
 
                     if(excLin>eThrqParam_[i]) //medium level
@@ -149,7 +153,7 @@ namespace loudness{
                     }
                 }
                 
-                output_.getSignalBank(track).setSample(i, 0, sl);
+                output_.setSample(track, i, 0, sl);
             }
         }
     }
