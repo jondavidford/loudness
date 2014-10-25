@@ -36,9 +36,9 @@ namespace loudness{
 
     private:
 
-        virtual bool initializeInternal(const SignalBank &input);
+        virtual bool initializeInternal(const TrackBank &input);
 
-        virtual void processInternal(const SignalBank &input);
+        virtual void processInternal(const TrackBank &input);
 
         virtual void resetInternal();
 

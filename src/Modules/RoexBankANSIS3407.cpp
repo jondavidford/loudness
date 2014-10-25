@@ -33,7 +33,7 @@ namespace loudness{
     {
     }
 
-    bool RoexBankANSIS3407::initializeInternal(const SignalBank &input)
+    bool RoexBankANSIS3407::initializeInternal(const TrackBank &input)
     {
         //number of input components
         int nChannels = input.getNChannels();
@@ -41,8 +41,8 @@ namespace loudness{
         //number of roex filters to use
         nFilters_ = round((camHi_-camLo_)/camStep_)+1; //+1 inclusive
 
-        //initialize output SignalBank
-        output_.initialize(nFilters_, 1, input.getFs());
+        //initialize output TrackBank
+        output_.initialize(input.getNTracks(), nFilters_, 1, input.getFs());
         output_.setFrameRate(input.getFrameRate());
 
         const Real p51_1k = 4000 / FreqToERB(1000.0);
@@ -81,7 +81,7 @@ namespace loudness{
     }
 
 
-    void RoexBankANSIS3407::processInternal(const SignalBank &input)
+    void RoexBankANSIS3407::processInternal(const TrackBank &input)
     {
         Real excitationLin, fc, g, p, pg;
 
@@ -89,66 +89,69 @@ namespace loudness{
         //using level independent roex filters centred on every component
         int j;
         int nChannels = input.getNChannels();
-        for(int i=0; i<nChannels; i++)
+        for (track = 0; track < input.getNTracks(); track++)
         {
-            excitationLin = 0;
-            j=0;
-            fc = input.getCentreFreq(i);
-
-            while(j<nChannels)
+            for(int i=0; i<nChannels; i++)
             {
-                //normalised deviation
-                g = (input.getCentreFreq(j)-fc)/fc;
+                excitationLin = 0;
+                j=0;
+                fc = input.getCentreFreq(i);
 
-                if(g>2)
-                    break;
-                if(g<0) //lower value 
-                    pg = -pcomp_[i]*g; //p*abs(g)
-                else //upper value
-                    pg = pcomp_[i]*g;
-                //excitation per erb
-                excitationLin += (1+pg)*exp(-pg)*input.getSample(j++,0); 
-            }
-
-            //convert to dB, subtract 51 here to save operations later
-            if (excitationLin < 1e-10)
-                compLevel_[i] = -151.0;
-            else
-                compLevel_[i] = 10*log10(excitationLin)-51;
-
-            LOUDNESS_DEBUG("RoexBankGM: ERB/dB : " << compLevel_[i]);
-        }
-        
-        //now the excitation pattern
-        for(int i=0; i<nFilters_; i++)
-        {
-            excitationLin = 0;
-            j=0;
-            fc = output_.getCentreFreq(i);
-
-            while(j<nChannels)
-            {
-                //normalised deviation
-                g = (input.getCentreFreq(j)-fc)/fc;
-
-                if (g>2)
-                    break;
-                if(g<0) //lower value 
+                while(j<nChannels)
                 {
-                    //checked out 2.4.14
-                    p = pu_[i]-(pl_[i]*compLevel_[j]); //51dB subtracted above
-                    p = p < 0.1 ? 0.1 : p; //p can go negative for very high levels
-                    pg = -p*g; //p*abs(g)
-                }
-                else //upper value
-                {
-                    pg = pu_[i]*g;
+                    //normalised deviation
+                    g = (input.getCentreFreq(j)-fc)/fc;
+
+                    if(g>2)
+                        break;
+                    if(g<0) //lower value 
+                        pg = -pcomp_[i]*g; //p*abs(g)
+                    else //upper value
+                        pg = pcomp_[i]*g;
+                    //excitation per erb
+                    excitationLin += (1+pg)*exp(-pg)*input.getSample(track, j++, 0); 
                 }
 
-                excitationLin += (1+pg)*exp(-pg)*input.getSample(j++,0); //excitation per erb
-            }
+                //convert to dB, subtract 51 here to save operations later
+                if (excitationLin < 1e-10)
+                    compLevel_[i] = -151.0;
+                else
+                    compLevel_[i] = 10*log10(excitationLin)-51;
 
-            output_.setSample(i, 0, excitationLin);
+                LOUDNESS_DEBUG("RoexBankGM: ERB/dB : " << compLevel_[i]);
+            }
+            
+            //now the excitation pattern
+            for(int i=0; i<nFilters_; i++)
+            {
+                excitationLin = 0;
+                j=0;
+                fc = output_.getCentreFreq(i);
+
+                while(j<nChannels)
+                {
+                    //normalised deviation
+                    g = (input.getCentreFreq(j)-fc)/fc;
+
+                    if (g>2)
+                        break;
+                    if(g<0) //lower value 
+                    {
+                        //checked out 2.4.14
+                        p = pu_[i]-(pl_[i]*compLevel_[j]); //51dB subtracted above
+                        p = p < 0.1 ? 0.1 : p; //p can go negative for very high levels
+                        pg = -p*g; //p*abs(g)
+                    }
+                    else //upper value
+                    {
+                        pg = pu_[i]*g;
+                    }
+
+                    excitationLin += (1+pg)*exp(-pg)*input.getSample(track, j++, 0); //excitation per erb
+                }
+
+                output_.setSample(track, i, 0, excitationLin);
+            }
         }
     }
 

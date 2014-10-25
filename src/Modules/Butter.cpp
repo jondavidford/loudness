@@ -36,7 +36,7 @@ namespace loudness{
 
     Butter::~Butter() {}
 
-    bool Butter::initializeInternal(const SignalBank &input)
+    bool Butter::initializeInternal(const TrackBank &input)
     {
         switch(order_)
         {
@@ -75,38 +75,41 @@ namespace loudness{
         //delay line
         z_.assign(2*order_,0.0);
 
-        //output SignalBank
-        output_.initialize(input.getNChannels(), input.getNSamples(), input.getFs());
+        //output TrackBank
+        output_.initialize(input.getNTracks(), input.getNChannels(), input.getNSamples(), input.getFs());
 
         return 1;
     }
 
-    void Butter::processInternal(const SignalBank &input)
+    void Butter::processInternal(const TrackBank &input)
     {
-        switch(order_)
+        for (track = 0; track < input.getNTracks(); track++)
         {
-            case 3:
-                Real x,y;
-                for(int smp=0; smp<input.getNSamples(); smp++)
-                {
-                    //input sample
-                    x = input.getSample(0, smp) * gain_;
-                    
-                    //filter
-                    y = bCoefs_[0]*(x-z_[2]) + bCoefs_[2]*(z_[1]-z_[0]) - 
-                        aCoefs_[1]*z_[3] - aCoefs_[2]*z_[4] - aCoefs_[3]*z_[5];
+            switch(order_)
+            {
+                case 3:
+                    Real x,y;
+                    for(int smp=0; smp<input.getNSamples(); smp++)
+                    {
+                        //input sample
+                        x = input.getSample(track, 0, smp) * gain_;
+                        
+                        //filter
+                        y = bCoefs_[0]*(x-z_[2]) + bCoefs_[2]*(z_[1]-z_[0]) - 
+                            aCoefs_[1]*z_[3] - aCoefs_[2]*z_[4] - aCoefs_[3]*z_[5];
 
-                    //update delay line
-                    z_[5] = z_[4];
-                    z_[4] = z_[3];
-                    z_[3] = y;
-                    z_[2] = z_[1];
-                    z_[1] = z_[0];
-                    z_[0] = x;
+                        //update delay line
+                        z_[5] = z_[4];
+                        z_[4] = z_[3];
+                        z_[3] = y;
+                        z_[2] = z_[1];
+                        z_[1] = z_[0];
+                        z_[0] = x;
 
-                    //output sample
-                    output_.setSample(0, smp, y);
-                }
+                        //output sample
+                        output_.setSample(track, 0, smp, y);
+                    }
+            }
         }
     }
     void Butter::resetInternal()
