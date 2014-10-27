@@ -63,7 +63,7 @@ clean:
 install:
 	#install the library and link soname
 	install -c $(EXECUTABLE) $(TARGET_DIR)/lib
-	ln -sf $(TARGET_DIgit rebaseR)/lib/$(EXECUTABLE) $(TARGET_DIR)/lib/$(BASENAME)
+	ln -sf $(TARGET_DIR)/lib/$(EXECUTABLE) $(TARGET_DIR)/lib/$(BASENAME)
 	ldconfig
 	#copy src folder and delete all but headers
 	mkdir -p $(TARGET_DIR)/include/$(NAME)
