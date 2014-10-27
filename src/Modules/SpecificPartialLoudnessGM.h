@@ -72,7 +72,7 @@ namespace loudness{
         bool ansiS3407_;
         int nFiltersLT500_;
         Real cParam_, c2Param;
-        RealVec eThrqParam_, eThrnParam_, gParam_, aParam_, alphaParam_, kParam_;
+        RealVec eThrqParam_, eThrnParam_, gParam_, aParam_, alphaParam_, k_;
     };
 }
 

@@ -21,7 +21,7 @@ LIBS=-lfftw3 -lsndfile #-lrt
 INCS=-I.
 
 SOURCES=../src/cnpy/cnpy.cpp \
-../src/Support/SignalBank.cpp \
+../src/Support/TrackBank.cpp \
 ../src/Support/Module.cpp \
 ../src/Support/Timer.cpp \
 ../src/Support/AuditoryTools.cpp \
@@ -42,7 +42,10 @@ SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Modules/WeightSpectrum.cpp \
 ../src/Modules/CompressSpectrum.cpp \
 ../src/Models/DynamicLoudnessGM.cpp \
-../src/Models/SteadyLoudnessANSIS3407.cpp
+../src/Models/SteadyLoudnessANSIS3407.cpp \
+../src/Models/DynamicPartialLoudnessGM.cpp \
+../src/Modules/SpecificPartialLoudnessGM.cpp \
+../src/Modules/StereoToMono.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 
@@ -60,7 +63,7 @@ clean:
 install:
 	#install the library and link soname
 	install -c $(EXECUTABLE) $(TARGET_DIR)/lib
-	ln -sf $(TARGET_DIR)/lib/$(EXECUTABLE) $(TARGET_DIR)/lib/$(BASENAME)
+	ln -sf $(TARGET_DIgit rebaseR)/lib/$(EXECUTABLE) $(TARGET_DIR)/lib/$(BASENAME)
 	ldconfig
 	#copy src folder and delete all but headers
 	mkdir -p $(TARGET_DIR)/include/$(NAME)

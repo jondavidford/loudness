@@ -6,14 +6,15 @@
 int main()
 {
 	loudness::AudioFileCutter audio;
-	const loudness::SignalBank *audioBank;
-	const loudness::SignalBank *IIRBank; // 0
-	const loudness::SignalBank *frameBank; // 1
-	const loudness::SignalBank *powerSpectrum; // 2
-	const loudness::SignalBank *compressBank; // 3
-	const loudness::SignalBank *roexBank; // 4
-	const loudness::SignalBank *specificBank; // 5
-	const loudness::SignalBank *loudnessBank; // 6
+	const loudness::TrackBank *audioBank;
+	const loudness::TrackBank *IIRBank; // 0rab
+	const loudness::TrackBank *frameBank; // 1
+	const loudness::TrackBank *powerSpectrum; // 2
+	const loudness::TrackBank *stereoToMono; // 3
+	const loudness::TrackBank *compressBank; // 4
+	const loudness::TrackBank *roexBank; // 5
+	const loudness::TrackBank *specificBank; // 6
+	const loudness::TrackBank *loudnessBank; // 7 
 	loudness::DynamicLoudnessGM *model;
 	int nFrames, nChannels;
 	int hopSize = 32;
@@ -29,10 +30,11 @@ int main()
 	IIRBank = model->getModuleOutput(0);
 	frameBank = model->getModuleOutput(1);
 	powerSpectrum = model->getModuleOutput(2);
-	compressBank = model->getModuleOutput(3);
-	roexBank = model->getModuleOutput(4);
-	specificBank = model->getModuleOutput(5);
-	loudnessBank = model->getModuleOutput(6);
+	stereoToMono = model->getModuleOutput(3);
+	compressBank = model->getModuleOutput(4);
+	roexBank = model->getModuleOutput(5);
+	specificBank = model->getModuleOutput(6);
+	loudnessBank = model->getModuleOutput(7);
 
 	//processing
 	for (int frame = 0; frame < nFrames; frame++)

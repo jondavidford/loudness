@@ -24,11 +24,11 @@
 #include "../Modules/FIR.h"
 #include "../Modules/IIR.h"
 #include "../Modules/PowerSpectrum.h"
+#include "../Modules/StereoToMono.h"
 #include "../Modules/CompressSpectrum.h"
 #include "../Modules/WeightSpectrum.h"
-#include "../Modules/FastRoexBank.h"
 #include "../Modules/RoexBankANSIS3407.h"
-#include "../Modules/SpecificLoudnessGM.h"
+#include "../Modules/FastRoexBank.h"
 #include "../Modules/SpecificPartialLoudnessGM.h"
 #include "../Modules/IntegratedLoudnessGM.h"
 #include "DynamicPartialLoudnessGM.h"
@@ -210,6 +210,10 @@ namespace loudness{
         modules_.push_back(unique_ptr<Module> 
                 (new PowerSpectrum(bandFreqsHz, windowSizeSecs, uniform_))); 
 
+
+        // stereo to mono module
+        modules_.push_back(unique_ptr<Module>
+                (new StereoToMono()));
         /*
          * Compression
          */
@@ -251,13 +255,13 @@ namespace loudness{
          * Specific loudness
          */
         modules_.push_back(unique_ptr<Module>
-                (new SpecificLoudnessGM));
+                (new SpecificPartialLoudnessGM()));
 
         /*
         * Loudness integration 
         */   
         modules_.push_back(unique_ptr<Module>
-                (new IntegratedLoudnessGM(diotic_, true)));
+                (new IntegratedPartialLoudnessGM(diotic_, true)));
 
         return 1;
     }

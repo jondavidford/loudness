@@ -36,7 +36,7 @@ namespace loudness{
         }
         else
         {
-            LOUDNESS_ERROR(name_ 
+            LOUDNESS_ERROR(name_
                 << ": TrackBank must have an even number of tracks")
             return 0;
         }

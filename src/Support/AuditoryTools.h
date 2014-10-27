@@ -53,9 +53,25 @@ namespace loudness{
         return 21.366*log10(4368e-6*freq+1);
     }
 
-    inline Real FreqToKParam(Real freq)
+    /**
+     * @brief Converts frequency in Hz to K Parameter from Glasberg and Moore (1997).
+     * Data from Glasberg and Moore 1997 was fit using least squares regression on the
+     * following equation:
+     *
+     * y = A * (1 - exp(B * x)) + C
+     * A = -20.633278427935698
+     * B = -0.0084029760716993127
+     * C = 17.705153743387456
+     *
+     * @param freq Frequency in Hz.
+     *
+     * @return K value
+     */
+    inline Real FreqToKdB(Real freq)
     {
-        return 0;
+        return  -20.633278427935698
+                * (1.0 - exp(-0.0084029760716993127 * freq))
+                + 17.705153743387456;
     }
 
     /**

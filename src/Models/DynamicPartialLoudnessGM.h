@@ -38,14 +38,10 @@ namespace loudness{
      *
      * Use loadParameterSet() to select the model parameters.
      *
-     * If you want to use a time-domain filter for simulating the transmission
-     * response of the outer and middle ear, such as the 4096 order FIR filter
-     * used by Glasberg and Moore, then specify the path (string) to the filter
-     * coefficients when constructing the object. The coefficients must be a
-     * Numpy array stored as a binary file in the '.npy' format. If a file path
-     * is not provided, pre-cochlear filtering is performed using the hybrid
-     * filter which combines a 3rd order high-pass filter with a frequency
-     * domain weighting function.
+     * Note that input to the model must be a TrackBank containing 4 tracks.
+     * The first 2 tracks are right and left channels of the target signal, respectively.
+     * The third and fourth tracks are the right and left channels of the masking
+     * signal, respectively.
      *
      * When using filter spacings greater than 0.1 Cams, the sampled excitation
      * pattern can be interpolated to approximate the high resolution pattern.
