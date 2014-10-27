@@ -29,23 +29,18 @@ SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Support/Filter.cpp \
 ../src/Support/Model.cpp \
 ../src/Modules/FrameGenerator.cpp \
-../src/Modules/AudioFileCutter.cpp \
 ../src/Modules/FIR.cpp \
 ../src/Modules/IIR.cpp \
 ../src/Modules/Butter.cpp \
 ../src/Modules/RoexBankANSIS3407.cpp \
 ../src/Modules/FastRoexBank.cpp \
 ../src/Modules/DoubleRoexBank.cpp \
-../src/Modules/SpecificLoudnessGM.cpp \
-../src/Modules/IntegratedLoudnessGM.cpp \
 ../src/Modules/PowerSpectrum.cpp \
 ../src/Modules/WeightSpectrum.cpp \
 ../src/Modules/CompressSpectrum.cpp \
-../src/Models/DynamicLoudnessGM.cpp \
-../src/Models/SteadyLoudnessANSIS3407.cpp \
-../src/Models/DynamicPartialLoudnessGM.cpp \
 ../src/Modules/SpecificPartialLoudnessGM.cpp \
-../src/Modules/StereoToMono.cpp
+../src/Modules/StereoToMono.cpp \
+../src/Models/DynamicPartialLoudnessGM.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

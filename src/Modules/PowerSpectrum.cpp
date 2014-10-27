@@ -221,7 +221,7 @@ namespace loudness{
         #endif 
 
         //initialize the output TrackBank
-        output_.initialize(input.getNTracks(), onBins, 1, fs);
+        output_.initialize(input.getNTracks(), nBins, 1, fs);
         output_.setFrameRate(input.getFrameRate());
 
         //output frequencies in Hz

@@ -39,7 +39,7 @@ namespace loudness{
         LOUDNESS_DEBUG(name_ << ": Total number of filters: " << nFilters_);
 
         //initialize output TrackBank
-        output_.initialize(nFilters_, 1, input.getFs());
+        output_.initialize(input.getNTracks(), nFilters_, 1, input.getFs());
         output_.setFrameRate(input.getFrameRate());
 
         //filter variables
@@ -110,7 +110,7 @@ namespace loudness{
         Real excitationLinP, excitationLinA, excitationLog, gain,
              excitationLogMinus30;
 
-        for (track = 0; track < input.getNTracks(); track++)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             for(int i=0; i<nFilters_; i++)
             {

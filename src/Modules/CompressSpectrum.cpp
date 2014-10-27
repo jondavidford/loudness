@@ -164,7 +164,7 @@ namespace loudness{
         #endif
 
         //set output SignalBank
-        output_.initialize(cfs.size(), 1, input.getFs());
+        output_.initialize(input.getNTracks(), cfs.size(), 1, input.getFs());
         output_.setCentreFreqs(cfs);
         output_.setFrameRate(input.getFrameRate());
 
@@ -174,7 +174,7 @@ namespace loudness{
     void CompressSpectrum::processInternal(const TrackBank &input)
     {
 
-        for (int track = 0; track < input.getNTracks; track++)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             Real out = 0;
             int i = 0, j = 0;

@@ -35,7 +35,7 @@
 
 namespace loudness{
 
-    DynamicPartialLoudnessGM::DynamicPartialLoudnessGM(string pathToFilterCoefs, int nTracks) :
+    DynamicPartialLoudnessGM::DynamicPartialLoudnessGM(string pathToFilterCoefs) :
         Model("DynamicPartialLoudnessGM", true),
         pathToFilterCoefs_(pathToFilterCoefs)
     {
@@ -96,11 +96,6 @@ namespace loudness{
     void DynamicPartialLoudnessGM::setFastBank(bool fastBank)
     {
         fastBank_ = fastBank;
-    }
-
-    void DynamicPartialLoudnessGM::setNTracks(int nTracks)
-    {
-        nTracks_ = nTracks
     }
 
     Real DynamicPartialLoudnessGM::getTimeStep() const
@@ -256,12 +251,6 @@ namespace loudness{
          */
         modules_.push_back(unique_ptr<Module>
                 (new SpecificPartialLoudnessGM()));
-
-        /*
-        * Loudness integration 
-        */   
-        modules_.push_back(unique_ptr<Module>
-                (new IntegratedPartialLoudnessGM(diotic_, true)));
 
         return 1;
     }

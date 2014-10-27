@@ -89,7 +89,7 @@ namespace loudness{
         //using level independent roex filters centred on every component
         int j;
         int nChannels = input.getNChannels();
-        for (track = 0; track < input.getNTracks(); track++)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             for(int i=0; i<nChannels; i++)
             {

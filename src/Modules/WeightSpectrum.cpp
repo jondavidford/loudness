@@ -67,7 +67,7 @@ namespace loudness{
         for (int track = 0; track < input.getNTracks(); track++)
         {
             for(int i=0; i<input.getNChannels(); i++)
-                output_.setSample(i, 0, input.getSample(i,0)*weights_[i]);
+                output_.setSample(track, i, 0, input.getSample(track, i, 0)*weights_[i]);
         }
     }
 

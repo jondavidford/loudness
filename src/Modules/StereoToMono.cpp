@@ -23,7 +23,7 @@ namespace loudness{
 
     StereoToMono::StereoToMono() : Module("StereoToMono") {};
 
-    StereoToMono::~StereoToMono() : {};
+    StereoToMono::~StereoToMono() {};
 
     bool StereoToMono::initializeInternal(const TrackBank &input)
     {
@@ -51,7 +51,7 @@ namespace loudness{
 
         for (int track = 0; track < nTracks; track += 2)
         {
-            for (chn=0; chn < input.getNChannels(); chn++)
+            for (int chn = 0; chn < input.getNChannels(); chn++)
             {
                 //input sample
                 r = input.getSample(track, chn, 0);

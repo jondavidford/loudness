@@ -46,7 +46,7 @@ namespace loudness{
  * Types
  */
 typedef double Real;
-typedef std::vector<Bool> BoolVec;
+typedef std::vector<bool> BoolVec;
 typedef std::vector<Real> RealVec;
 typedef std::vector<std::vector<Real> > RealVecVec;
 typedef std::vector<std::vector<std::vector<Real> > > RealVecVecVec;

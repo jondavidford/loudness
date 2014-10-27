@@ -20,6 +20,8 @@
 #ifndef  STEREOTOMONO_H
 #define  STEREOTOMONO_H
 
+#include "../Support/Module.h"
+
 /*
  * =====================================================================================
  *        Class:  StereoToMono

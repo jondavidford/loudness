@@ -101,7 +101,7 @@ namespace loudness{
         count_ = 0;
 
         //initialise the output signal
-        output_.initialize(1, frameSize_, input.getFs());
+        output_.initialize(input.getNTracks(), 1, frameSize_, input.getFs());
         output_.setFrameRate(input.getFs()/(Real)hopSize_);
 
         return 1;

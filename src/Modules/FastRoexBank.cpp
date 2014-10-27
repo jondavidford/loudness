@@ -154,7 +154,7 @@ namespace loudness{
         int j = 0;
         int k = rectBinIndices_[0][0];
 
-        for (int track = 0; track < input.getNTracks)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             for(int i=0; i<nChannels; i++)
             {

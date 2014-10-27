@@ -62,7 +62,7 @@ namespace loudness{
 
     void Module::process(const TrackBank &input)
     {
-        if(initialized_ && input.getTrig())
+        if(initialized_ && input.getAndTrigs())
         {
             processInternal(input);
             if(targetModule_)

@@ -83,7 +83,7 @@ namespace loudness{
 
     void Butter::processInternal(const TrackBank &input)
     {
-        for (track = 0; track < input.getNTracks(); track++)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             switch(order_)
             {

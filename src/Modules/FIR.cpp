@@ -57,7 +57,7 @@ namespace loudness{
         Real x;
 
         LOUDNESS_DEBUG("FIR: New block");
-        for (track = 0; track < input.getNTracks(); track++)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             //delay line
             z_.assign(order_,0.0);
@@ -65,7 +65,7 @@ namespace loudness{
             for(smp=0; smp<input.getNSamples(); smp++)
             {
                 //input sample
-                x = input.getSample(0, smp) * gain_;
+                x = input.getSample(track, 0, smp) * gain_;
 
                 LOUDNESS_DEBUG("FIR: Input sample: " << x);
 

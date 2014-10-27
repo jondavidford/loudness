@@ -23,10 +23,10 @@ namespace loudness{
 
     TrackBank::TrackBank()
     { 
+        nTracks_ = 0;
         nChannels_ = 0;
         nSamples_ = 0;
         fs_ = 0;
-        trig_ = 0;
         initialized_ = false;
         frameRate_ =0;
     }
@@ -46,32 +46,32 @@ namespace loudness{
         initialized_ = true;
         centreFreqs_.assign(nChannels_, 0.0);
 
-        for(int track=0; i<nTracks_, track++)
+        for (int track = 0; track < nTracks_; track++)
         {
             signal_[track].resize(nChannels_);
-            for(int i=0; i<nChannels_; i++)
+            for (int i=0; i<nChannels_; i++)
                 signal_[track][i].assign(nSamples_,0.0);
         }
     }
 
     void TrackBank::initialize(const TrackBank &input)
     {
-        if(input.isInitialized())
+        if (input.isInitialized())
         {
             nTracks_ = input.getNTracks();
             nChannels_ = input.getNChannels();
             nSamples_ = input.getNSamples();
             fs_ = input.getFs();
             frameRate_ = input.getFrameRate();
-            trig_ = input.getTrig();
             initialized_ = true;
             centreFreqs_ = input.getCentreFreqs();
             
-            for(int track=0; i<nTracks_, track++)
+            for (int track = 0; track < nTracks_; track++)
             {
-                signal_.resize(nChannels_);
-                for(int i=0; i<nChannels_; i++)
-                    signal_[i].assign(nSamples_,0.0);
+                trig_[track] = input.getTrig(track);
+                signal_[track].resize(nChannels_);
+                for (int i=0; i<nChannels_; i++)
+                    signal_[track][i].assign(nSamples_,0.0);
             }
         }
         else
@@ -83,7 +83,7 @@ namespace loudness{
 
     void TrackBank::clear()
     {
-        for(int track=0, track<nTracks_; track++)
+        for(int track = 0; track < nTracks_; track++)
         {
             for(int i=0; i<nChannels_; i++)
                 signal_[track][i].assign(nSamples_,0.0);
@@ -114,7 +114,7 @@ namespace loudness{
 
     void TrackBank::setSignal(int track, int channel, const RealVec &signal)
     {
-        if(channel<nChannels_ && (int)signal.size()==nSamples_ && track < nTracks)
+        if(channel<nChannels_ && (int)signal.size()==nSamples_ && track < nTracks_)
             signal_[track][channel] = signal;
         else
         {

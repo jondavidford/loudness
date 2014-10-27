@@ -42,6 +42,7 @@ namespace loudness{
      * loudness pattern for the target in noise.
      * 
      * Only for use within DynamicPartialLoudnessGM model.
+     * Input is a TrackBank of size 2
      *
      * Models the compressive behaviour of the active cochlea mechanism
      * according to:
@@ -71,7 +72,7 @@ namespace loudness{
 
         bool ansiS3407_;
         int nFiltersLT500_;
-        Real cParam_, c2Param;
+        Real cParam_, c2Param_;
         RealVec eThrqParam_, eThrnParam_, gParam_, aParam_, alphaParam_, k_;
     };
 }

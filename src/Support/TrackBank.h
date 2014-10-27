@@ -154,6 +154,20 @@ namespace loudness{
             return trig_[track];
         }
 
+        /*
+         * @brief Returns the AND of the trig values for all tracks
+         *
+         * @return true if all tracks active
+         */
+        bool getAndTrigs() const
+        {
+            for (int track = 0; track < nTracks_; track++)
+            {
+                if (!getTrig(track)) return false;
+            }
+            return true;
+        }
+
         /**
          * @brief Returns the number of tracks in the TrackBank
          * 
@@ -207,9 +221,9 @@ namespace loudness{
          *
          * @return The centre frequency (Hz).
          */
-        inline Real getCentreFreq(int track, int channel) const
+        inline Real getCentreFreq(int channel) const
         {
-            return centreFreqs_[track][channel];
+            return centreFreqs_[channel];
         }
 
         /**
@@ -247,7 +261,7 @@ namespace loudness{
 
         int nTracks_, nChannels_, nSamples_, fs_;
         BoolVec trig_;
-        Bool initialized_
+        bool initialized_;
         Real frameRate_;
         RealVecVecVec signal_;
         RealVec centreFreqs_;
