@@ -37,11 +37,11 @@ namespace loudness{
         {
             fftw_free(fftInputBuf_);
             fftw_free(fftOutputBuf_);
-            LOUDNESS_DEBUG("PowerSpectrum: Buffers destroyed.");
+            LOUDNESS_DEBUG(name_ << ": Buffers destroyed.");
 
             for(vector<fftw_plan>::iterator i = fftPlans_.begin(); i != fftPlans_.end(); i++)
                 fftw_destroy_plan(*i);
-            LOUDNESS_DEBUG("PowerSpectrum: Plan(s) destroyed.");
+            LOUDNESS_DEBUG(name_ << ": Plan(s) destroyed.");
         }
     }
 
@@ -168,18 +168,22 @@ namespace loudness{
             bandBinIndices_[i][0] = ceil(bandFreqsHz_[i]*fftSize_[i]/fs);
             bandBinIndices_[i][1] = ceil(bandFreqsHz_[i+1]*fftSize_[i]/fs)-1;
 
-            //for (f_lo, f_hi] use this line:
-            //bandBinIndices_[i][1] = floor(bandFreqsHz_[i+1]*fftSize_[i]/fs);
+            if(bandBinIndices_[i][1]==0)
+            {
+                LOUDNESS_ERROR(name_ << ": No components found in band number " << i);
+                return 0;
+            }
 
             //exclude DC and Nyquist if found
             if(bandBinIndices_[i][0]==0)
             {
-                LOUDNESS_WARNING("PowerSpectrum: DC found...excluding.");
+                LOUDNESS_WARNING(name_ << ": DC found...excluding.");
                 bandBinIndices_[i][0] = 1;
             }
             if(bandBinIndices_[i][1] >= (fftSize_[i]/2.0))
             {
-                LOUDNESS_WARNING("PowerSpectrum: Bin is >= nyquist...excluding.");
+                LOUDNESS_WARNING(name_ << 
+                        ": Bin is >= nyquist...excluding.");
                 bandBinIndices_[i][1] = (ceil(fftSize_[i]/2.0)-1);
             }
         }
@@ -208,10 +212,10 @@ namespace loudness{
         #if defined(DEBUG)
         for(int i=0; i<nWindows_; i++)
         {
-            Real edgeLo = bandBinIndices_[i][0]*fs/(float)fftSize_[i];
-            Real edgehi = bandBinIndices_[i][1]*fs/(float)fftSize_[i];
+            Real edgeLo = bandBinIndices_[i][0]*fs/(Real)fftSize_[i];
+            Real edgehi = bandBinIndices_[i][1]*fs/(Real)fftSize_[i];
             LOUDNESS_DEBUG(name_ 
-                    << ": Band edges (Hz) for window of size: " 
+                    << ": Band interval (Hz) for window of size: " 
                     << windowSizeSamps_[i] << " = [ " 
                     << std::setprecision (7) 
                     << edgeLo << ", " 
