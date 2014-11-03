@@ -46,6 +46,7 @@ namespace loudness{
         initialized_ = true;
         centreFreqs_.assign(nChannels_, 0.0);
 
+        signal_.resize(nTracks_);
         for (int track = 0; track < nTracks_; track++)
         {
             signal_[track].resize(nChannels_);

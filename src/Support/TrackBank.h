@@ -128,6 +128,11 @@ namespace loudness{
             signal_[track][channel][index] = sample;
         }
 
+        inline void sumSample(int track, int channel, int index, Real sample)
+        {
+            signal_[track][channel][index] += sample;
+        }
+
         /**
          * @brief Sets the trigger state of the TrackBank.
          *
