@@ -112,7 +112,7 @@ namespace loudness{
         }
 
         //add the final frequency
-        if(binIdx[binIdx.size()-1] < nChannels)
+        if(binIdx.back() < nChannels)
             binIdx.push_back(nChannels);
 
         //PART 2
