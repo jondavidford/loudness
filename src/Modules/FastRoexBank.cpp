@@ -148,14 +148,14 @@ namespace loudness{
         /*
          * Part 1: Obtain the level per ERB about each input component
          */
-
         int nChannels = input.getNChannels();
         Real runningSum = 0;
-        int j = 0;
-        int k = rectBinIndices_[0][0];
 
         for (int track = 0; track < input.getNTracks(); track++)
         {
+            int j = 0;
+            int k = rectBinIndices_[0][0];
+
             for(int i=0; i<nChannels; i++)
             {
                 //running sum of component powers
@@ -174,7 +174,10 @@ namespace loudness{
 
                 LOUDNESS_DEBUG("FastRoexBank: ERB/dB : " << compLevel_[i]+1e-10);
             }
+        }
 
+        for (int track = 0; track < input.getNTracks(); track++)
+        {
             /*
              * Part 2: Complete roex filter response and compute excitation per ERB
              */
