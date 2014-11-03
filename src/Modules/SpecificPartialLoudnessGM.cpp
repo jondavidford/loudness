@@ -41,6 +41,9 @@ namespace loudness{
 
         Real eThrqdB500Hz = IntExc(500);
 
+        //Number of filters below 500Hz
+        nFiltersLT500_ = 0;
+
         //fill loudness parameter vectors
         Real fcPrev = input.getCentreFreq(0);
         for(int i=0; i<input.getNChannels(); i++)
@@ -55,6 +58,7 @@ namespace loudness{
             if (fc < 500)
             {
                 eThrqParam_.push_back(pow(10,eThrqdB/10.0));
+                nFiltersLT500_++;
             }
             else
             {
@@ -85,7 +89,7 @@ namespace loudness{
             eNoise = input.getSample(1, freq, 0);
             eThrn = k_[freq] * eNoise + eThrqParam_[freq];
 
-            //high level
+            // partial loudness calculation (the target signal in noise)
             if (eSig + eNoise > 1e10)
             {
                 if (eSig >= eThrqParam_[freq]) // equation 19 from Glasberg and Moore 1997
@@ -126,8 +130,48 @@ namespace loudness{
                             / (pow(eNoise * (1 + k_[freq]) + eThrqParam_[freq], 0.5) - pow(eNoise, 0.5)));
                 }
             }
+
+            // set partial loudness at output channel 1
+            output_.setSample(0, freq, 1, sl);
+
+            // loudness calculation (the isolated target signal)
+            //high level
+            if (eSig > 1e10)
+            {
+                if(ansiS3407_)
+                    sl = pow((eSig/1.0707),0.2);
+                else
+                    sl = pow((eSig/1.04e6),0.5);
+            }
+            else if(freq<nFiltersLT500_) //low freqs
+            { 
+                if(eSig>eThrqParam_[freq]) //medium level
+                {
+                    sl = (pow(gParam_[freq]*eSig+aParam_[freq], alphaParam_[freq])-
+                            pow(aParam_[freq],alphaParam_[freq]));
+                }
+                else //low level
+                {
+                    sl = pow((2*eSig)/(eSig+eThrqParam_[freq]), 1.5)*
+                        (pow(gParam_[freq]*eSig+aParam_[freq],alphaParam_[freq])
+                            -pow(aParam_[freq],alphaParam_[freq]));
+                }
+            }
+            else //high freqs (variables are constant >= 500 Hz)
+            { 
+                if(eSig>2.3604782331805771) //medium level
+                {
+                    sl = pow(eSig+4.72096, 0.2)-1.3639739128330546;
+                } 
+                else //low level
+                {
+                    sl = pow((2*eSig)/(eSig+2.3604782331805771), 1.5)*
+                        (pow(eSig+4.72096, 0.2)-1.3639739128330546);
+                }
+            }
             
-            output_.setSample(0, freq, 0, sl);
+            // set loudness at output channel 0
+            output_.setSample(0, freq, 0, cParam_*sl);
         }
     }
 
