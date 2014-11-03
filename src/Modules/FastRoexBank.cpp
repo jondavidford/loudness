@@ -186,7 +186,7 @@ namespace loudness{
             for(int i=0; i<nFilters_; i++)
             {
                 excitationLin = 0;
-                j = 0;
+                int j = 0;
 
                 while(j<nChannels)
                 {
