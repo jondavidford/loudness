@@ -132,7 +132,7 @@ namespace loudness{
             }
 
             // set partial loudness at output channel 1
-            output_.setSample(0, freq, 1, sl);
+            output_.setSample(0, freq, 1, 10*log10(sl));
 
             // loudness calculation (the isolated target signal)
             //high level
@@ -171,7 +171,7 @@ namespace loudness{
             }
             
             // set loudness at output channel 0
-            output_.setSample(0, freq, 0, cParam_*sl);
+            output_.setSample(0, freq, 0, 10*log10(cParam_*sl));
         }
     }
 
