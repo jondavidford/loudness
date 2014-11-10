@@ -49,6 +49,12 @@ int main()
 	        std::cout << "frame:\t" << frame << " chn:\t" << chn << " freq: " << specificBank->getCentreFreq(chn) << "  \tloudness: " << specificBank->getSample(chn,0) << std::endl;
 	    }
 
+	    std::cout << "compression\n";
+	    for (int chn = 0; chn < compressBank->getNChannels(); chn++)
+	    {
+	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << compressBank->getSample(0,chn,0) << std::endl;
+	    }
+
 	    std::cout << "Roex Bank\n";
 	    for (int chn = 0; chn < roexBank->getNChannels(); chn++)
 	    {
