@@ -1,34 +1,59 @@
 // translated from ../pythonTests/test_DynamicLoudnessGM.py
-#include "../src/Models/DynamicLoudnessGM.h"
+// compile after building the loudness library
+//
+
+#include <loudness/Modules/AudioFileCutter.h>
+#include <loudness/Models/DynamicLoudnessGM.h>
 
 int main()
 {
-	int nChannels;
+	loudness::AudioFileCutter audio;
+	const loudness::SignalBank *audioBank;
+	const loudness::SignalBank *IIRBank; // 0rab
+	const loudness::SignalBank *frameBank; // 1
+	const loudness::SignalBank *powerSpectrum; // 2
+	const loudness::SignalBank *stereoToMono; // 3
+	const loudness::SignalBank *compressBank; // 4
+	const loudness::SignalBank *roexBank; // 5
+	const loudness::SignalBank *specificBank; // 6
+	const loudness::SignalBank *loudnessBank; // 7 
+	loudness::DynamicLoudnessGM *model;
+	int nFrames, nChannels;
 	int hopSize = 32;
-	loudness::AudioFileCutter audio = loudness::AudioFileCutter("../wavs/tone1kHz40dBSPL.wav", hopSize);
+	audio = loudness::AudioFileCutter("../wavs/tone1kHz40dBSPL.wav", hopSize);
 	audio.initialize();
-	loudness::SignalBank audioBank = audio.getOutput();
+	audioBank = audio.getOutput();
+	nFrames = audio.getNFrames();
 
 	//Create the loudness model
-	loudness::DynamicLoudnessGM model = loudness::DynamicLoudnessGM("../filterCoefs/32000_IIR_23_freemid.npy");
-	model.initialize(audioBank);
-	loudness::SignalBank loudnessBank = model.getModuleOutput(6);
-	nChannels = loudnessBank.getNChannels();
+	model = new loudness::DynamicLoudnessGM("../filterCoefs/32000_IIR_23_freemid.npy");
+	model->initialize(*audioBank);
 
-	//storage
-	//out = np.zeros((nFrames, nChannels));
+	IIRBank = model->getModuleOutput(0);
+	frameBank = model->getModuleOutput(1);
+	powerSpectrum = model->getModuleOutput(2);
+	compressBank = model->getModuleOutput(3);
+	roexBank = model->getModuleOutput(4);
+	specificBank = model->getModuleOutput(5);
+	loudnessBank = model->getModuleOutput(6);
 
 	//processing
-	for (int frame = 0; frame < 5; frame++)
+	for (int frame = 0; frame < nFrames; frame++)
 	{
 	    audio.process();
-	    model.process(audioBank);
+	    model->process(*audioBank);
 
-	    cout << "frame: " << frame << endl << endl;
-
-	    for (int chn = 0; chn < nChannels; chn++)
+	    std::cout << "Specific loudness Loudness\n";
+	    for (int chn = 0; chn < specificBank->getNChannels(); chn++)
 	    {
-	        cout << "bin: " << chn << "\t\tloudness: " << loudnessBank.getSample(chn,0);
+	        std::cout << "frame:\t" << frame << " chn:\t" << chn << " freq: " << specificBank->getCentreFreq(chn) << "  \tloudness: " << specificBank->getSample(chn,0) << std::endl;
 	    }
+
+	    /*std::cout << "Power Spectrum\n";
+	    for (int chn = 0; chn < powerSpectrum->getNChannels(); chn++)
+	    {
+	    	std::cout << "center frequency:\t" << powerSpectrum->getCentreFreq(chn) << std::endl;
+	        std::cout << "frame:\t" << frame << " chn:\t" << chn << "loudness:\t" << powerSpectrum->getSample(chn,0) << std::endl;
+	    }*/
 	}
 }
