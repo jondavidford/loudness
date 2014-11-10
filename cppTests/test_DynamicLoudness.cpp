@@ -47,11 +47,11 @@ int main()
 	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << specificBank->getSample(0,chn,0) << std::endl;
 	    }
 
-	    /*std::cout << "Power Spectrum\n";
+	    std::cout << "Power Spectrum\n";
 	    for (int chn = 0; chn < powerSpectrum->getNChannels(); chn++)
 	    {
 	    	std::cout << "center frequency: " << powerSpectrum->getCentreFreq(chn) << std::endl;
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << powerSpectrum->getSample(chn,0) << std::endl;
-	    }*/
+	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << powerSpectrum->getSample(0,chn,0) << std::endl;
+	    }
 	}
 }
