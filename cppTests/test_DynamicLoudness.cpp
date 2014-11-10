@@ -49,11 +49,10 @@ int main()
 	        std::cout << "frame:\t" << frame << " chn:\t" << chn << " freq: " << specificBank->getCentreFreq(chn) << "  \tloudness: " << specificBank->getSample(chn,0) << std::endl;
 	    }
 
-	    /*std::cout << "Power Spectrum\n";
-	    for (int chn = 0; chn < powerSpectrum->getNChannels(); chn++)
+	    std::cout << "Roex Bank\n";
+	    for (int chn = 0; chn < roexBank->getNChannels(); chn++)
 	    {
-	    	std::cout << "center frequency:\t" << powerSpectrum->getCentreFreq(chn) << std::endl;
-	        std::cout << "frame:\t" << frame << " chn:\t" << chn << "loudness:\t" << powerSpectrum->getSample(chn,0) << std::endl;
-	    }*/
+	        std::cout << "frame:\t" << frame << " chn:\t" << chn << "loudness:\t" << roexBank->getSample(chn,0) << std::endl;
+	    }
 	}
 }
