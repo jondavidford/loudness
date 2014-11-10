@@ -138,6 +138,8 @@ namespace loudness{
      */
     Real SoneToPhon(Real sone, bool ansiS3407);
 
+    Real separationToReduction(Real separation);
+
     /**
      * @class OME
      *

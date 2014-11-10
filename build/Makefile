@@ -41,6 +41,7 @@ SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Modules/CompressSpectrum.cpp \
 ../src/Modules/SpecificPartialLoudnessGM.cpp \
 ../src/Modules/StereoToMono.cpp \
+../src/Modules/SumMaskers.cpp \
 ../src/Models/DynamicPartialLoudnessGM.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)

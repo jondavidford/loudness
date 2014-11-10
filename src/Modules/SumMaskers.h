@@ -17,37 +17,38 @@
  * along with Loudness.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-#ifndef  STEREOTOMONO_H
-#define  STEREOTOMONO_H
+#ifndef  SUMMASKERS_H
+#define  SUMMASKERS_H
 
 #include "../Support/Module.h"
 
 /*
  * =====================================================================================
- *        Class:  StereoToMono
- *  Description:  Converts a stereo signal into mono. Input is a power spectrum and
- *                output is a power spectrum. Assumes that a single stereo track is
- *                adjacent tracks in the input TrackBank (i.e. right channel of track
- *                1 is index 0 and left channel is index 1)
+ *        Class:  SumMaskers
+ *  Description:  Creates nTracks new tracks, each the sum of all signals other than the 
+ *                target. Also takes into account spatial separation data between tracks
+ *                and reduces input signals accordingly.
+ *                Each sum is at index target + nTracks
  *
  * =====================================================================================
  */
 
 namespace loudness{
 
-    class StereoToMono : public Module
+    class SumMaskers : public Module
     {
         public:
-            StereoToMono();
-            virtual ~StereoToMono();
+            SumMaskers();
+            virtual ~SumMaskers();
 
         private:
 
             virtual bool initializeInternal(const TrackBank &input);
             virtual void processInternal(const TrackBank &input);
             virtual void resetInternal();
+
+            RealVec avgPositions_;
     };
 }
 
 #endif
-

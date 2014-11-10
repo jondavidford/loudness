@@ -46,23 +46,41 @@ namespace loudness{
     void StereoToMono::processInternal(const TrackBank &input)
     {
         int nTracks;
-        Real l,r, avg;
+        Real l,r, pos;
 
         nTracks = input.getNTracks();
 
-        for (int track = 0; track < nTracks; track += 2)
+        for (int target = 0; target < nTracks; target += 2)
         {
             for (int chn = 0; chn < input.getNChannels(); chn++)
             {
+
                 //input sample
-                r = input.getSample(track, chn, 0);
-                l = input.getSample(track+1, chn, 0);
+                r = sqrt(input.getSample(target, chn, 0));
+                l = sqrt(input.getSample(target+1, chn, 0));
 
-                // take the average of the magnitude spectrum 
-                avg = pow(sqrt(r) + sqrt(l) / 2, 2);
+                // calculate spatial position
+                if (l == 0) // signal all the way left
+                {
+                    pos = -90.0;
+                }
+                else if  (r == 0) // signal all the way right
+                {
+                    pos = 90.0;
+                }
+                else if (l > r) // signal partially left
+                {
+                    pos = (r / l) * -90.0;
+                }
+                else // signal partially right
+                {
+                    pos = (l / r) * 90.0;
+                }
 
-                //output sample
-                output_.setSample((int) track / 2, chn, 0, avg);
+                output_.setSpatialPosition((int) target / 2, chn, pos);
+
+                // set output to average of magnitude spectrum
+                output_.setSample((int) target / 2, chn, 0, pow((r + l) / 2, 2));
             }
         }
     }

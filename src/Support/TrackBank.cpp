@@ -47,8 +47,10 @@ namespace loudness{
         centreFreqs_.assign(nChannels_, 0.0);
 
         signal_.resize(nTracks_);
+        spatialPositions_.resize(nTracks_);
         for (int track = 0; track < nTracks_; track++)
         {
+            spatialPositions_[track].resize(nChannels_);
             signal_[track].resize(nChannels_);
             for (int i=0; i<nChannels_; i++)
                 signal_[track][i].assign(nSamples_,0.0);
@@ -110,7 +112,17 @@ namespace loudness{
     void TrackBank::setCentreFreq(int channel, Real freq)
     {
         if (channel<nChannels_)
-           centreFreqs_[channel] = freq;
+            centreFreqs_[channel] = freq;
+    }
+
+    void TrackBank::setSpatialPositions(const RealVecVec &spatialPositions)
+    {
+        spatialPositions_ = spatialPositions;
+    }
+
+    void TrackBank::setSpatialPosition(int track, int channel, Real pos)
+    {
+        spatialPositions_[track][channel] = pos;
     }
 
     void TrackBank::setSignal(int track, int channel, const RealVec &signal)

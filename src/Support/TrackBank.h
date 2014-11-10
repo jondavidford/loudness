@@ -40,6 +40,8 @@ namespace loudness{
      * TrackBank, otherwise the output is not updated. This is useful for
      * frequency domain processing modules where the spectral processing rate is
      * typically lower than the host rate.
+     *
+     * When used for a partial masking model.
      * 
      * @author Dominic Ward
      */
@@ -159,6 +161,11 @@ namespace loudness{
             return trig_[track];
         }
 
+        inline Real getSpatialPosition(int track, int channel) const
+        {
+            return spatialPositions_[track][channel];
+        }
+
         /*
          * @brief Returns the AND of the trig values for all tracks
          *
@@ -239,6 +246,10 @@ namespace loudness{
          */
         const RealVec &getCentreFreqs() const;
 
+        void setSpatialPositions(const RealVecVec &spatialPositions);
+
+        void setSpatialPosition(int track, int channel, Real pos);
+
         /**
          * @brief Returns the sampling frequency.
          *
@@ -270,6 +281,7 @@ namespace loudness{
         Real frameRate_;
         RealVecVecVec signal_;
         RealVec centreFreqs_;
+        RealVecVec spatialPositions_;
     }; 
 }
 #endif 

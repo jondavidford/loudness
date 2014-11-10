@@ -31,11 +31,10 @@ namespace loudness{
 
     bool SpecificPartialLoudnessGM::initializeInternal(const TrackBank &input)
     {
-        /*
-        if (input.getNTracks() != 2)
+        if (input.getNTracks() % 2 != 0)
         {
-            LOUDNESS_ERROR(name_ << ": TrackBank must have exactly 2 tracks");
-        }*/
+            LOUDNESS_ERROR(name_ << ": TrackBank must have an even number of tracks");
+        }
         //c value from ANSI 2007
         cParam_ = 0.046871;
         c2Param_ = 0.0000459608; // C_2 = C / (1.04 x 10^6)^0.5
@@ -75,106 +74,117 @@ namespace loudness{
         LOUDNESS_DEBUG("SpecificPartialLoudnessGM: number of filters <500 Hz: " << nFiltersLT500_);
 
         //output TrackBank
-        output_.initialize(1, input.getNChannels(), input.getNSamples(), input.getFs());
+        output_.initialize(input.getNTracks() / 2, input.getNChannels(), input.getNSamples(), input.getFs());
 
         return 1;
     }
 
     void SpecificPartialLoudnessGM::processInternal(const TrackBank &input)
     {
-        Real eSig, eNoise, eThrn, sl=0.0;
+        Real eSig, eNoise, eThrn, sl, slSum, plSum, pl=0.0;
+        int masker, nTracks;
 
-        for(int freq = 0; freq < input.getNChannels(); freq++)
+        nTracks = input.getNTracks() / 2;
+
+        for (int target = 0; target < nTracks; target++)
         {
-            eSig = input.getSample(0, freq, 0);
-            /*
-            eNoise = input.getSample(1, freq, 0);
-            eThrn = k_[freq] * eNoise + eThrqParam_[freq];
+            slSum = 0;
+            plSum = 0;
+            masker = target + nTracks;
+            for(int freq = 0; freq < input.getNChannels(); freq++)
+            {
+                eSig = input.getSample(target, freq, 0);
+                eNoise = input.getSample(masker, freq, 0);
+                eThrn = k_[freq] * eNoise + eThrqParam_[freq];
 
-            // partial loudness calculation (the target signal in noise)
-            if (eSig + eNoise > 1e10)
-            {
-                if (eSig >= eThrqParam_[freq]) // equation 19 from Glasberg and Moore 1997
+                // partial loudness calculation (the target signal in noise)
+                if (eSig + eNoise > 1e10)
                 {
-                    sl = c2Param_ * pow(eSig + eNoise, 0.5)
-                            - c2Param_ * (pow((1 + k_[freq]) * eNoise + eThrqParam_[freq], 0.5)
-                                            - pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq])
-                                            + pow(aParam_[freq], alphaParam_[freq]))
-                                        * pow(eThrqParam_[freq] / eSig, 0.3);
-                }
-                else // equation 20 from Glasberg and Moore 1997
-                {
-                    sl = cParam_
-                        * pow(2 * eSig / (eSig + eThrqParam_[freq]), 1.5)
-                        * ((pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq])
-                                - pow(aParam_[freq], alphaParam_[freq]))
-                            / (pow(eNoise * (1 + k_[freq]) + eThrqParam_[freq], 0.5) - pow(eNoise, 0.5)))
-                        * (pow(eSig + eNoise, 0.5) - pow(eNoise, 0.5));
-                }
-            }
-            else // eSig + eNoise <= 1e10
-            {
-                if (eSig >= eThrn) // // equation 17 from Glasberg and Moore 1997
-                {
-                    sl = cParam_ * (pow((eSig + eNoise) * gParam_[freq] + aParam_[freq], alphaParam_[freq])
+                    if (eSig >= eThrqParam_[freq]) // equation 19 from Glasberg and Moore 1997
+                    {
+                        pl = c2Param_ * pow(eSig + eNoise, 0.5)
+                                - c2Param_ * (pow((1 + k_[freq]) * eNoise + eThrqParam_[freq], 0.5)
+                                                - pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq])
+                                                + pow(aParam_[freq], alphaParam_[freq]))
+                                            * pow(eThrqParam_[freq] / eSig, 0.3);
+                    }
+                    else // equation 20 from Glasberg and Moore 1997
+                    {
+                        pl = cParam_
+                            * pow(2 * eSig / (eSig + eThrqParam_[freq]), 1.5)
+                            * ((pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq])
                                     - pow(aParam_[freq], alphaParam_[freq]))
-                        - cParam_
-                            * (pow((eNoise * (1 + k_[freq]) + eThrqParam_[freq]) * gParam_[freq] + aParam_[freq], alphaParam_[freq])
-                                - pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq]))
-                            * pow(eThrn / eSig, 0.3);
+                                / (pow(eNoise * (1 + k_[freq]) + eThrqParam_[freq], 0.5) - pow(eNoise, 0.5)))
+                            * (pow(eSig + eNoise, 0.5) - pow(eNoise, 0.5));
+                    }
                 }
-                else // equation 18 from Glasberg and Moore 1997
+                else // eSig + eNoise <= 1e10
                 {
-                    sl = cParam_
-                        * pow(2 * eSig / (eSig + eThrqParam_[freq]), 1.5)
-                        * ((pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq])
-                                - pow(aParam_[freq], alphaParam_[freq]))
-                            / (pow(eNoise * (1 + k_[freq]) + eThrqParam_[freq], 0.5) - pow(eNoise, 0.5)));
+                    if (eSig >= eThrn) // // equation 17 from Glasberg and Moore 1997
+                    {
+                        pl = cParam_ * (pow((eSig + eNoise) * gParam_[freq] + aParam_[freq], alphaParam_[freq])
+                                        - pow(aParam_[freq], alphaParam_[freq]))
+                            - cParam_
+                                * (pow((eNoise * (1 + k_[freq]) + eThrqParam_[freq]) * gParam_[freq] + aParam_[freq], alphaParam_[freq])
+                                    - pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq]))
+                                * pow(eThrn / eSig, 0.3);
+                    }
+                    else // equation 18 from Glasberg and Moore 1997
+                    {
+                        pl = cParam_
+                            * pow(2 * eSig / (eSig + eThrqParam_[freq]), 1.5)
+                            * ((pow(eThrqParam_[freq] * gParam_[freq] + aParam_[freq], alphaParam_[freq])
+                                    - pow(aParam_[freq], alphaParam_[freq]))
+                                / (pow(eNoise * (1 + k_[freq]) + eThrqParam_[freq], 0.5) - pow(eNoise, 0.5)));
+                    }
                 }
-            }
 
-            // set partial loudness at output channel 1
-            output_.setSample(0, freq, 1, 10*log10(sl));
-            */
+                // set partial loudness at output channel 1
+                output_.setSample(target, freq, 1, pl);
+                //plSum += pl;
 
-            // loudness calculation (the isolated target signal)
-            //high level
-            if (eSig > 1e10)
-            {
-                if(ansiS3407_)
-                    sl = pow((eSig/1.0707),0.2);
-                else
-                    sl = pow((eSig/1.04e6),0.5);
-            }
-            else if(freq<nFiltersLT500_) //low freqs
-            { 
-                if(eSig>eThrqParam_[freq]) //medium level
+                // loudness calculation (the isolated target signal)
+                //high level
+                if (eSig > 1e10)
                 {
-                    sl = (pow(gParam_[freq]*eSig+aParam_[freq], alphaParam_[freq])-
-                            pow(aParam_[freq],alphaParam_[freq]));
+                    if(ansiS3407_)
+                        sl = pow((eSig/1.0707),0.2);
+                    else
+                        sl = pow((eSig/1.04e6),0.5);
                 }
-                else //low level
-                {
-                    sl = pow((2*eSig)/(eSig+eThrqParam_[freq]), 1.5)*
-                        (pow(gParam_[freq]*eSig+aParam_[freq],alphaParam_[freq])
-                            -pow(aParam_[freq],alphaParam_[freq]));
+                else if(freq<nFiltersLT500_) //low freqs
+                { 
+                    if(eSig>eThrqParam_[freq]) //medium level
+                    {
+                        sl = (pow(gParam_[freq]*eSig+aParam_[freq], alphaParam_[freq])-
+                                pow(aParam_[freq],alphaParam_[freq]));
+                    }
+                    else //low level
+                    {
+                        sl = pow((2*eSig)/(eSig+eThrqParam_[freq]), 1.5)*
+                            (pow(gParam_[freq]*eSig+aParam_[freq],alphaParam_[freq])
+                                -pow(aParam_[freq],alphaParam_[freq]));
+                    }
                 }
-            }
-            else //high freqs (variables are constant >= 500 Hz)
-            { 
-                if(eSig>2.3604782331805771) //medium level
-                {
-                    sl = pow(eSig+4.72096, 0.2)-1.3639739128330546;
-                } 
-                else //low level
-                {
-                    sl = pow((2*eSig)/(eSig+2.3604782331805771), 1.5)*
-                        (pow(eSig+4.72096, 0.2)-1.3639739128330546);
+                else //high freqs (variables are constant >= 500 Hz)
+                { 
+                    if(eSig>2.3604782331805771) //medium level
+                    {
+                        sl = pow(eSig+4.72096, 0.2)-1.3639739128330546;
+                    }
+                    else //low level
+                    {
+                        sl = pow((2*eSig)/(eSig+2.3604782331805771), 1.5)*
+                            (pow(eSig+4.72096, 0.2)-1.3639739128330546);
+                    }
                 }
+                
+                // set loudness at output channel 0
+                output_.setSample(target, freq, 0, cParam_*sl);
+                //slSum += sl;
             }
-            
-            // set loudness at output channel 0
-            output_.setSample(0, freq, 0, cParam_*sl);
+            //output_.setSample(0, 0, 0, cParam_*slSum);
+            //output_.setSample(0, 0, 1, plSum);
         }
     }
 

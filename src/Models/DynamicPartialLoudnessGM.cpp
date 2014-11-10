@@ -25,6 +25,7 @@
 #include "../Modules/IIR.h"
 #include "../Modules/PowerSpectrum.h"
 #include "../Modules/StereoToMono.h"
+#include "../Modules/SumMaskers.h"
 #include "../Modules/CompressSpectrum.h"
 #include "../Modules/WeightSpectrum.h"
 #include "../Modules/RoexBankANSIS3407.h"
@@ -128,6 +129,7 @@ namespace loudness{
                 break;
             case FASTER1:
                 setFastBank(true);
+                setInterpRoexBank(true);
                 setCompressionCriterion(0.3);
                 break;
             default:
@@ -216,6 +218,10 @@ namespace loudness{
         if(stereoToMono_)
             modules_.push_back(unique_ptr<Module>
                     (new StereoToMono()));
+
+        modules_.push_back(unique_ptr<Module>
+                (new SumMaskers()));
+
         /*
          * Compression
          */

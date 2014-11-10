@@ -11,10 +11,11 @@ int main()
 	const loudness::TrackBank *frameBank; // 1
 	const loudness::TrackBank *powerSpectrum; // 2
 	const loudness::TrackBank *stereoToMono; // 3
-	const loudness::TrackBank *compressBank; // 4
-	const loudness::TrackBank *roexBank; // 5
-	const loudness::TrackBank *specificBank; // 6
-	const loudness::TrackBank *loudnessBank; // 7
+	const loudness::TrackBank *sumMaskers; // 4
+	const loudness::TrackBank *compressBank; // 5
+	const loudness::TrackBank *roexBank; // 6
+	const loudness::TrackBank *specificBank; // 7
+	const loudness::TrackBank *loudnessBank; // 8
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
 	int hopSize = 32;
@@ -31,9 +32,10 @@ int main()
 	IIRBank = model->getModuleOutput(0);
 	frameBank = model->getModuleOutput(1);
 	powerSpectrum = model->getModuleOutput(2);
-	compressBank = model->getModuleOutput(3);
-	roexBank = model->getModuleOutput(4);
-	specificBank = model->getModuleOutput(5);
+	sumMaskers = model->getModuleOutput(3);
+	compressBank = model->getModuleOutput(4);
+	roexBank = model->getModuleOutput(5);
+	specificBank = model->getModuleOutput(6);
 
 	//processing
 	for (int frame = 0; frame < nFrames; frame++)
@@ -45,18 +47,6 @@ int main()
 	    for (int chn = 0; chn < specificBank->getNChannels(); chn++)
 	    {
 	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << specificBank->getSample(0,chn,0) << std::endl;
-	    }
-
-	    std::cout << "compression\n";
-	    for (int chn = 0; chn < compressBank->getNChannels(); chn++)
-	    {
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << compressBank->getSample(0,chn,0) << std::endl;
-	    }
-
-	    std::cout << "Roex Bank\n";
-	    for (int chn = 0; chn < roexBank->getNChannels(); chn++)
-	    {
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << roexBank->getSample(0,chn,0) << std::endl;
 	    }
 	}
 }
