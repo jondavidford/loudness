@@ -52,7 +52,7 @@ int main()
 	    std::cout << "compression\n";
 	    for (int chn = 0; chn < compressBank->getNChannels(); chn++)
 	    {
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << compressBank->getSample(0,chn,0) << std::endl;
+	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << compressBank->getSample(chn,0) << std::endl;
 	    }
 
 	    std::cout << "Roex Bank\n";
