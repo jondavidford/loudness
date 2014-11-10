@@ -114,7 +114,7 @@ namespace loudness{
 
                 if(initialize)
                 {
-                    output_.initialize(fileInfo.channels, frameSize_,
+                    output_.initialize(1, fileInfo.channels, frameSize_,
                             fileInfo.samplerate);
                     audioBuffer_.resize(audioBufferSize_);
                 }
@@ -171,7 +171,7 @@ namespace loudness{
             for(int i=0; i<nSamples; i += nChannels)
             {
                 for(int j=0; j<nChannels; j++)
-                    output_.setSample(j, i, audioBuffer_[bufferIdx_ + i + j]);
+                    output_.setSample(0, j, i, audioBuffer_[bufferIdx_ + i + j]);
             }         
             
             //increment the frame counter

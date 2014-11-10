@@ -104,6 +104,7 @@ namespace loudness{
             void setAnsiBank(bool ansiBank);
             void setPathToFilterCoefs(string pathToFilterCoefs);
             void setFastBank(bool fastBank);
+            void setStereoToMono(bool stereoToMono);
 
             Real getTimeStep() const;
             
@@ -112,7 +113,7 @@ namespace loudness{
 
             int outerEarType_;
             Real timeStep_, filterSpacing_, compressionCriterion_;
-            bool ansiBank_, fastBank_, interpRoexBank_, uniform_, diotic_, goertzel_;
+            bool ansiBank_, fastBank_, interpRoexBank_, uniform_, diotic_, goertzel_, stereoToMono_;
             bool hpf_, diffuseField_;
             string pathToFilterCoefs_;
 

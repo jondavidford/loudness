@@ -31,10 +31,11 @@ namespace loudness{
 
     bool SpecificPartialLoudnessGM::initializeInternal(const TrackBank &input)
     {
+        /*
         if (input.getNTracks() != 2)
         {
             LOUDNESS_ERROR(name_ << ": TrackBank must have exactly 2 tracks");
-        }
+        }*/
         //c value from ANSI 2007
         cParam_ = 0.046871;
         c2Param_ = 0.0000459608; // C_2 = C / (1.04 x 10^6)^0.5
@@ -86,6 +87,7 @@ namespace loudness{
         for(int freq = 0; freq < input.getNChannels(); freq++)
         {
             eSig = input.getSample(0, freq, 0);
+            /*
             eNoise = input.getSample(1, freq, 0);
             eThrn = k_[freq] * eNoise + eThrqParam_[freq];
 
@@ -133,6 +135,7 @@ namespace loudness{
 
             // set partial loudness at output channel 1
             output_.setSample(0, freq, 1, 10*log10(sl));
+            */
 
             // loudness calculation (the isolated target signal)
             //high level
@@ -171,7 +174,7 @@ namespace loudness{
             }
             
             // set loudness at output channel 0
-            output_.setSample(0, freq, 0, 10*log10(cParam_*sl));
+            output_.setSample(0, freq, 0, cParam_*sl);
         }
     }
 

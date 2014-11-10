@@ -31,7 +31,7 @@ namespace loudness{
      * @class AudioFileCutter
      * 
      * @brief Extracts a frame of samples from an audio file and puts the result
-     * into an output SignalBank for processing.
+     * into an output TrackBank for processing.
      *
      * This class uses an internal buffer to bring a block of samples into
      * memory, from which frames are extracted.
@@ -87,8 +87,8 @@ namespace loudness{
     private:
 
         /* Hmmm */
-        virtual bool initializeInternal(const SignalBank &input){return 0;};
-        virtual void processInternal(const SignalBank &input){};
+        virtual bool initializeInternal(const TrackBank &input){return 0;};
+        virtual void processInternal(const TrackBank &input){};
         /**
          * @brief Loads an audio file specified by @a fileName_;
          *

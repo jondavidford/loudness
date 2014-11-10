@@ -103,6 +103,11 @@ namespace loudness{
         return timeStep_;
     }
 
+    void DynamicPartialLoudnessGM::setStereoToMono(bool stereoToMono)
+    {
+        stereoToMono_ = stereoToMono;
+    }
+
     void DynamicPartialLoudnessGM::loadParameterSet(ParameterSet set)
     {
         //common to all
@@ -116,6 +121,7 @@ namespace loudness{
         setFilterSpacing(0.25);
         setCompressionCriterion(0.0);
         setFastBank(false);
+        setStereoToMono(true);
 
         switch(set){
             case GM02:
@@ -207,8 +213,9 @@ namespace loudness{
 
 
         // stereo to mono module
-        modules_.push_back(unique_ptr<Module>
-                (new StereoToMono()));
+        if(stereoToMono_)
+            modules_.push_back(unique_ptr<Module>
+                    (new StereoToMono()));
         /*
          * Compression
          */
