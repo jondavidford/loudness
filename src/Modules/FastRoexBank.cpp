@@ -149,12 +149,12 @@ namespace loudness{
          * Part 1: Obtain the level per ERB about each input component
          */
         int nChannels = input.getNChannels();
-        Real runningSum = 0;
 
         for (int track = 0; track < input.getNTracks(); track++)
         {
             int j = 0;
             int k = rectBinIndices_[0][0];
+            Real runningSum = 0;
 
             for(int i=0; i<nChannels; i++)
             {

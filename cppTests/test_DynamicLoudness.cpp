@@ -47,11 +47,16 @@ int main()
 	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << specificBank->getSample(0,chn,0) << std::endl;
 	    }
 
-	    std::cout << "Power Spectrum\n";
-	    for (int chn = 0; chn < powerSpectrum->getNChannels(); chn++)
+	    std::cout << "compression\n";
+	    for (int chn = 0; chn < compressBank->getNChannels(); chn++)
 	    {
-	    	std::cout << "center frequency: " << powerSpectrum->getCentreFreq(chn) << std::endl;
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << powerSpectrum->getSample(0,chn,0) << std::endl;
+	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << compressBank->getSample(0,chn,0) << std::endl;
+	    }
+
+	    std::cout << "Roex Bank\n";
+	    for (int chn = 0; chn < roexBank->getNChannels(); chn++)
+	    {
+	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << roexBank->getSample(0,chn,0) << std::endl;
 	    }
 	}
 }
