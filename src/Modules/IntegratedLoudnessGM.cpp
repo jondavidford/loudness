@@ -119,7 +119,7 @@ namespace loudness{
     void IntegratedLoudnessGM::processInternal(const TrackBank &input)
     {       
         //instantaneous loudness
-        for (track = 0; track < input.getNTracks(); track++)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
             Real il = 0;
             if(uniform_)

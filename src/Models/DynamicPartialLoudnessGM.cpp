@@ -265,6 +265,12 @@ namespace loudness{
         modules_.push_back(unique_ptr<Module>
                 (new SpecificPartialLoudnessGM()));
 
+        /*
+         * Loudness integration
+         */
+        modules_.push_back(unique_ptr<Module>
+                (new IntegratedLoudnessGM(diotic_, true)));
+
         return 1;
     }
 

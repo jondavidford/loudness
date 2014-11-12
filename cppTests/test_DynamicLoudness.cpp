@@ -17,12 +17,13 @@ int main()
 	const loudness::TrackBank *compressBank; // 5
 	const loudness::TrackBank *roexBank; // 6
 	const loudness::TrackBank *specificBank; // 7
-	const loudness::TrackBank *loudnessBank; // 8
+	const loudness::TrackBank *integratedBank; // 8
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
 	int hopSize = 1024;
 	std::vector<std::string> files;
 	files.push_back("../wavs/tone1kHz40dBSPL.wav");
+	files.push_back("../wavs/tone3kHz40dBSPL.wav");
 	loudness::AudioFileCutter audio = loudness::AudioFileCutter(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
@@ -40,6 +41,7 @@ int main()
 	compressBank = model->getModuleOutput(4);
 	roexBank = model->getModuleOutput(5);
 	specificBank = model->getModuleOutput(6);
+	integratedBank = model->getModuleOutput(7);
 
 	//processing
 	for (int frame = 0; frame < nFrames; frame++)
@@ -48,9 +50,7 @@ int main()
 	    model->process(*audioBank);
 
 	    std::cout << "Instantaneous Loudness\n";
-	    for (int chn = 0; chn < specificBank->getNChannels(); chn++)
-	    {
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << specificBank->getSample(0,chn,0) << std::endl;
-	    }
+	    for (int track = 0; track < specificBank->getNTracks(); track++)
+	        std::cout << "frame: " << frame << "loudness: " << integratedBank->getSample(track,0,0) << std::endl;
 	}
 }

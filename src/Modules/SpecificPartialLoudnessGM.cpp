@@ -75,6 +75,7 @@ namespace loudness{
 
         //output TrackBank
         output_.initialize(input.getNTracks() / 2, input.getNChannels(), input.getNSamples(), input.getFs());
+        output_.setCentreFreqs(input.getCentreFreqs());
 
         return 1;
     }
