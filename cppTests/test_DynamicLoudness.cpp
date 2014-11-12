@@ -1,11 +1,13 @@
 // translated from ../pythonTests/test_DynamicLoudnessGM.py
+// first build and install library, then compile this file
+// compile using g++ -std=c++11 test_DynamicLoudnessGM.cpp -lloudness
 
+#include <string>
 #include <loudness/Modules/AudioFileCutter.h>
 #include <loudness/Models/DynamicPartialLoudnessGM.h>
 
 int main()
 {
-	loudness::AudioFileCutter audio;
 	const loudness::TrackBank *audioBank;
 	const loudness::TrackBank *IIRBank; // 0
 	const loudness::TrackBank *frameBank; // 1
@@ -18,8 +20,10 @@ int main()
 	const loudness::TrackBank *loudnessBank; // 8
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 32;
-	audio = loudness::AudioFileCutter("../wavs/tone1kHz40dBSPL.wav", hopSize);
+	int hopSize = 1024;
+	std::vector<std::string> files;
+	files.push_back("../wavs/tone1kHz40dBSPL.wav");
+	loudness::AudioFileCutter audio = loudness::AudioFileCutter(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
 	nFrames = audio.getNFrames();
