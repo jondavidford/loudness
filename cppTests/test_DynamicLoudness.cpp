@@ -19,23 +19,25 @@ int main()
 	const loudness::SignalBank *loudnessBank; // 7 
 	loudness::DynamicLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 32;
-	audio = loudness::AudioFileCutter("../wavs/tone1kHz40dBSPL.wav", hopSize);
+	int hopSize = 512;
+	audio = loudness::AudioFileCutter("../wavs/bass_1s.wav", hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
 	nFrames = audio.getNFrames();
 
 	//Create the loudness model
-	model = new loudness::DynamicLoudnessGM("../filterCoefs/32000_IIR_23_freemid.npy");
+	model = new loudness::DynamicLoudnessGM("../filterCoefs/44100_IIR_23_freemid.npy");
+	model->setFastBank(false);
+	model->setCompressionCriterion(0);
 	model->initialize(*audioBank);
 
 	IIRBank = model->getModuleOutput(0);
 	frameBank = model->getModuleOutput(1);
 	powerSpectrum = model->getModuleOutput(2);
-	compressBank = model->getModuleOutput(3);
-	roexBank = model->getModuleOutput(4);
-	specificBank = model->getModuleOutput(5);
-	loudnessBank = model->getModuleOutput(6);
+	//compressBank = model->getModuleOutput(3);
+	roexBank = model->getModuleOutput(3);
+	specificBank = model->getModuleOutput(4);
+	loudnessBank = model->getModuleOutput(5);
 
 	//processing
 	for (int frame = 0; frame < nFrames; frame++)
@@ -43,22 +45,6 @@ int main()
 	    audio.process();
 	    model->process(*audioBank);
 
-	    std::cout << "Specific loudness Loudness\n";
-	    for (int chn = 0; chn < specificBank->getNChannels(); chn++)
-	    {
-	        std::cout << "frame:\t" << frame << " chn:\t" << chn << " freq: " << specificBank->getCentreFreq(chn) << "  \tloudness: " << specificBank->getSample(chn,0) << std::endl;
-	    }
-
-	    std::cout << "compression\n";
-	    for (int chn = 0; chn < compressBank->getNChannels(); chn++)
-	    {
-	        std::cout << "frame: " << frame << " chn: " << chn << "loudness: " << compressBank->getSample(chn,0) << std::endl;
-	    }
-
-	    std::cout << "Roex Bank\n";
-	    for (int chn = 0; chn < roexBank->getNChannels(); chn++)
-	    {
-	        std::cout << "frame:\t" << frame << " chn:\t" << chn << "loudness:\t" << roexBank->getSample(chn,0) << std::endl;
-	    }
+	    std::cout << loudnessBank->getSample(0,0) << std::endl;
 	}
 }
