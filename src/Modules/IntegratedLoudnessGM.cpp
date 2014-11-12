@@ -125,14 +125,14 @@ namespace loudness{
             if(uniform_)
             {
                 for(int chn=0; chn<input.getNChannels(); chn++)
-                    il += input.getSample(track, chn, 0);
+                    il += input.getSample(track, chn, 1);
             }
             else
             {
                 for(int chn=0; chn<input.getNChannels()-1; chn++)
                 {
-                    il += input.getSample(track, chn, 0)*camDif_[chn] + 0.5*camDif_[chn]*
-                        (input.getSample(track, chn+1, 0)-input.getSample(track, chn, 0));
+                    il += input.getSample(track, chn, 1)*camDif_[chn] + 0.5*camDif_[chn]*
+                        (input.getSample(track, chn+1, 1)-input.getSample(track, chn, 1));
                 }
             }
 
