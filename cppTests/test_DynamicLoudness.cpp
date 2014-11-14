@@ -19,7 +19,7 @@ int main()
 	const loudness::SignalBank *loudnessBank; // 7 
 	loudness::DynamicLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 512;
+	int hopSize = 55;
 	audio = loudness::AudioFileCutter("../wavs/bass_1s.wav", hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
@@ -27,17 +27,15 @@ int main()
 
 	//Create the loudness model
 	model = new loudness::DynamicLoudnessGM("../filterCoefs/44100_IIR_23_freemid.npy");
-	model->setFastBank(false);
-	model->setCompressionCriterion(0);
 	model->initialize(*audioBank);
 
 	IIRBank = model->getModuleOutput(0);
 	frameBank = model->getModuleOutput(1);
 	powerSpectrum = model->getModuleOutput(2);
-	//compressBank = model->getModuleOutput(3);
-	roexBank = model->getModuleOutput(3);
-	specificBank = model->getModuleOutput(4);
-	loudnessBank = model->getModuleOutput(5);
+	compressBank = model->getModuleOutput(3);
+	roexBank = model->getModuleOutput(4);
+	specificBank = model->getModuleOutput(5);
+	loudnessBank = model->getModuleOutput(6);
 
 	//processing
 	for (int frame = 0; frame < nFrames; frame++)
