@@ -37,12 +37,11 @@ SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Modules/FastRoexBank.cpp \
 ../src/Modules/DoubleRoexBank.cpp \
 ../src/Modules/PowerSpectrum.cpp \
+../src/Modules/PowerSpectrumAndSpatialDetection.cpp \
 ../src/Modules/WeightSpectrum.cpp \
 ../src/Modules/CompressSpectrum.cpp \
 ../src/Modules/SpecificPartialLoudnessGM.cpp \
 ../src/Modules/IntegratedLoudnessGM.cpp \
-../src/Modules/StereoToMono.cpp \
-../src/Modules/SumMaskers.cpp \
 ../src/Models/DynamicPartialLoudnessGM.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)

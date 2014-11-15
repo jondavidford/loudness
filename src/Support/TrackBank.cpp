@@ -28,7 +28,7 @@ namespace loudness{
         nSamples_ = 0;
         fs_ = 0;
         initialized_ = false;
-        frameRate_ =0;
+        frameRate_ = 0;
     }
 
     TrackBank::~TrackBank()

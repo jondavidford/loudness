@@ -24,6 +24,7 @@
 #include "../Modules/FIR.h"
 #include "../Modules/IIR.h"
 #include "../Modules/PowerSpectrum.h"
+#include "../Modules/PowerSpectrumAndSpatialDetection.h"
 #include "../Modules/StereoToMono.h"
 #include "../Modules/SumMaskers.h"
 #include "../Modules/CompressSpectrum.h"
@@ -209,18 +210,17 @@ namespace loudness{
         //window spec
         RealVec windowSizeSecs {0.064, 0.032, 0.016, 0.008, 0.004, 0.002};
         
-        //create module
-        modules_.push_back(unique_ptr<Module> 
-                (new PowerSpectrum(bandFreqsHz, windowSizeSecs, uniform_))); 
-
-
-        // stereo to mono module
+        //create appropriate power spectrum module
         if(stereoToMono_)
+        {
+            modules_.push_back(unique_ptr<Module> 
+                    (new PowerSpectrumAndSpatialDetection(bandFreqsHz, windowSizeSecs, uniform_)));
+        }
+        else
+        {
             modules_.push_back(unique_ptr<Module>
-                    (new StereoToMono()));
-
-        modules_.push_back(unique_ptr<Module>
-                (new SumMaskers()));
+                    (new PowerSpectrum(bandFreqsHz, windowSizeSecs, uniform_)));
+        }
 
         /*
          * Compression
