@@ -21,6 +21,7 @@
 #define FRAMEGENERATOR_H
 
 #include "../Support/Module.h"
+#include "../Support/Common.h"
 
 namespace loudness{
 
@@ -80,9 +81,9 @@ namespace loudness{
         virtual void processInternal(const TrackBank &input);
         virtual void resetInternal();
 
-        int frameSize_, hopSize_, audioBufferSize_, inputBufferSize_;
-        int count_, readIdx_, writeIdx_, initNFramesFull_, nFramesFull_;
-        RealVec audioBuffer_;
+        int frameSize_, hopSize_, audioBufferSize_, inputBufferSize_, nTracks_;
+        std::vector<int> count_, readIdx_, writeIdx_, initNFramesFull_, nFramesFull_;
+        RealVecVec audioBuffer_;
     };
 }
 

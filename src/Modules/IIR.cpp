@@ -58,7 +58,6 @@ namespace loudness{
             //Normalise coefficients if a[0] != 1
             normaliseCoefs();
 
-            //delay line
             z_.assign(order_,0.0);
 
             //output TrackBank

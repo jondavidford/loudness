@@ -25,8 +25,6 @@
 #include "../Modules/IIR.h"
 #include "../Modules/PowerSpectrum.h"
 #include "../Modules/PowerSpectrumAndSpatialDetection.h"
-#include "../Modules/StereoToMono.h"
-#include "../Modules/SumMaskers.h"
 #include "../Modules/CompressSpectrum.h"
 #include "../Modules/WeightSpectrum.h"
 #include "../Modules/RoexBankANSIS3407.h"
