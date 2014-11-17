@@ -335,21 +335,23 @@ namespace loudness{
                     magL = sqrt(pow(reL,2) + pow(imL, 2));
 
                     // calculate spatial position
+                    // 0 is all the way left
+                    // 180 is all the way right
                     if (magL == 0) // signal all the way left
                     {
-                        pos = -90.0;
+                        pos = 0;
                     }
                     else if  (magR == 0) // signal all the way right
                     {
-                        pos = 90.0;
+                        pos = 180.0;
                     }
                     else if (magL > magR) // signal partially left
                     {
-                        pos = (magR / magL) * -90.0;
+                        pos = (magR / magL) * 90.0;
                     }
                     else // signal partially right
                     {
-                        pos = (magL / magR) * 90.0;
+                        pos = (1.0 - (magL / magR)) * 90.0 + 90.0;
                     }
                     output_.setSpatialPosition(track, binWriteIdx, pos);
                     positionSum += pos;

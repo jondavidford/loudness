@@ -18,10 +18,12 @@ int main()
 	const loudness::TrackBank *integratedBank; // 6
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 1024;
+	int hopSize = 512;
 	std::vector<std::string> files;
-	files.push_back("../wavs/guitar_s.wav");
-	files.push_back("../wavs/bass_s.wav");
+	files.push_back("../wavs/guitar_r.wav");
+	files.push_back("../wavs/guitar_l.wav");
+	files.push_back("../wavs/bass_r.wav");
+	files.push_back("../wavs/bass_l.wav");
 	loudness::AudioFileCutter audio = loudness::AudioFileCutter(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
