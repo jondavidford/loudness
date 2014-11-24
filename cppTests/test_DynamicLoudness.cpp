@@ -41,11 +41,15 @@ int main()
 	specificBank = model->getModuleOutput(5);
 	integratedBank = model->getModuleOutput(6);
 
+	nChannels = integratedBank->getNChannels();
+
 	//processing
 	for (int frame = 0; frame < nFrames; frame++)
 	{
 	    audio.process();
 	    model->process(*audioBank);
-		std::cout << integratedBank->getSample(0,0,0) << std::endl;
+	    std::cout << "frame: " << frame << std::endl;
+	    //for (int chn = 0; chn < nChannels; chn++)
+			//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }
