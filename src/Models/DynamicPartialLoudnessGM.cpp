@@ -30,7 +30,7 @@
 #include "../Modules/RoexBankANSIS3407.h"
 #include "../Modules/FastRoexBank.h"
 #include "../Modules/SpecificPartialLoudnessGM.h"
-#include "../Modules/IntegratedLoudnessGM.h"
+#include "../Modules/IntegratedPartialLoudnessGM.h"
 #include "DynamicPartialLoudnessGM.h"
 
 namespace loudness{
@@ -267,7 +267,7 @@ namespace loudness{
          * Loudness integration
          */
         modules_.push_back(unique_ptr<Module>
-                (new IntegratedLoudnessGM(diotic_, true)));
+                (new IntegratedPartialLoudnessGM(diotic_, true)));
 
         return 1;
     }

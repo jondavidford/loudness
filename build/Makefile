@@ -41,7 +41,7 @@ SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Modules/WeightSpectrum.cpp \
 ../src/Modules/CompressSpectrum.cpp \
 ../src/Modules/SpecificPartialLoudnessGM.cpp \
-../src/Modules/IntegratedLoudnessGM.cpp \
+../src/Modules/IntegratedPartialLoudnessGM.cpp \
 ../src/Models/DynamicPartialLoudnessGM.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
