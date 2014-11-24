@@ -63,7 +63,8 @@ namespace loudness{
         Real attackSTLCoef_, releaseSTLCoef_;
         Real attackLTLCoef_, releaseLTLCoef_;
         Real camStep_, timeStep_;
-        RealVec prevIL_, prevSTL_, prevLTL_;
+        RealVec prevSTL_, prevLTL_;
+        RealVec prevSTPL_, prevLTPL_;
         RealVec camDif_;
     };
 }

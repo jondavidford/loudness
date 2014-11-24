@@ -110,12 +110,13 @@ namespace loudness{
         setReleaseLTLCoef(-0.001/log(1-0.0005));
 
         int nTracks = input.getNTracks();
-        prevIL_.assign(nTracks, 0);
         prevSTL_.assign(nTracks, 0);
         prevLTL_.assign(nTracks, 0);
+        prevSTPL_.assign(nTracks, 0);
+        prevLTPL_.assign(nTracks, 0);
 
         //output TrackBank
-        output_.initialize(nTracks, input.getNChannels(), 3, input.getFs());
+        output_.initialize(nTracks, input.getNChannels(), 6, input.getFs());
         output_.setFrameRate(input.getFrameRate());
 
         return 1;
@@ -124,22 +125,25 @@ namespace loudness{
     void IntegratedPartialLoudnessGM::processInternal(const TrackBank &input)
     {       
         Real il, stl, ltl, ilChn, stlChn, ltlChn, prevSTLChn, prevLTLChn;
+        Real ipl, stpl, ltpl, iplChn, stplChn, ltplChn, prevSTPLChn, prevLTPLChn;
         for (int track = 0; track < input.getNTracks(); track++)
         {
             // first get overall loudnesses
             // in order to calculate if sound is in attack or release phase
+            //
+            // loudness
             il = 0;
             if(uniform_)
             {
                 for(int chn=0; chn<input.getNChannels(); chn++)
-                    il += input.getSample(track, chn, 1);
+                    il += input.getSample(track, chn, 0);
             }
             else
             {
                 for(int chn=0; chn<input.getNChannels()-1; chn++)
                 {
-                    il += input.getSample(track, chn, 1)*camDif_[chn] + 0.5*camDif_[chn]*
-                        (input.getSample(track, chn+1, 1)-input.getSample(track, chn, 1));
+                    il += input.getSample(track, chn, 0)*camDif_[chn] + 0.5*camDif_[chn]*
+                        (input.getSample(track, chn+1, 0)-input.getSample(track, chn, 0));
                 }
             }
 
@@ -160,14 +164,53 @@ namespace loudness{
                 ltl = attackLTLCoef_*(stl-prevLTL) + prevLTL;
             else
                 ltl = releaseLTLCoef_*(stl-prevLTL) + prevLTL;
+
+            // first get overall loudnesses
+            // in order to calculate if sound is in attack or release phase
+            ipl = 0;
+            if(uniform_)
+            {
+                for(int chn=0; chn<input.getNChannels(); chn++)
+                    ipl += input.getSample(track, chn, 1);
+            }
+            else
+            {
+                for(int chn=0; chn<input.getNChannels()-1; chn++)
+                {
+                    ipl += input.getSample(track, chn, 1)*camDif_[chn] + 0.5*camDif_[chn]*
+                        (input.getSample(track, chn+1, 1)-input.getSample(track, chn, 1));
+                }
+            }
+
+            //apply scaling factor
+            ipl *= cParam_;
+
+            //short-term loudness
+            Real prevSTPL = prevSTPL_[track];
+
+            if(il>prevSTPL)
+                stpl = attackSTLCoef_*(ipl-prevSTPL) + prevSTPL;
+            else
+                stpl = releaseSTLCoef_*(ipl-prevSTPL) + prevSTPL;
+
+            //long-term loudness
+            Real prevLTPL = prevLTPL_[track];
+            if(stl>prevLTPL)
+                ltpl = attackLTLCoef_*(stpl-prevLTPL) + prevLTPL;
+            else
+                ltpl = releaseLTLCoef_*(stpl-prevLTPL) + prevLTPL;
             
             // then get individual channel loudnesses
             // using info about if the sound is in attack or release phase
             for (int chn = 0; chn < input.getNChannels(); chn++)
             {
                 ilChn = input.getSample(track, chn, 0);
+                iplChn = input.getSample(track, chn, 1);
+
                 prevSTLChn = output_.getSample(track, chn, 1);
                 prevLTLChn = output_.getSample(track, chn, 2);
+                prevSTPLChn = output_.getSample(track, chn, 4);
+                prevLTPLChn = output_.getSample(track, chn, 5);
 
                 if(il>prevSTL)
                     stlChn = attackSTLCoef_*(ilChn-prevSTLChn) + prevSTLChn;
@@ -179,14 +222,28 @@ namespace loudness{
                 else
                     ltlChn = releaseLTLCoef_*(stl-prevLTLChn) + prevLTLChn;
 
+                if(ipl>prevSTPL)
+                    stplChn = attackSTLCoef_*(iplChn-prevSTPLChn) + prevSTPLChn;
+                else
+                    stplChn = releaseSTLCoef_*(iplChn-prevSTPLChn) + prevSTPLChn;
+
+                if(stpl>prevLTPL)
+                    ltplChn = attackLTLCoef_*(stpl-prevLTPLChn) + prevLTPLChn;
+                else
+                    ltplChn = releaseLTLCoef_*(stpl-prevLTPLChn) + prevLTPLChn;
+
                 output_.setSample(track, chn, 0, ilChn);
                 output_.setSample(track, chn, 1, stlChn);
                 output_.setSample(track, chn, 2, ltlChn);
+                output_.setSample(track, chn, 3, iplChn);
+                output_.setSample(track, chn, 4, stplChn);
+                output_.setSample(track, chn, 5, ltplChn);
             }
 
-            prevIL_[track] = il;
             prevSTL_[track] = stl;
             prevLTL_[track] = ltl;
+            prevSTPL_[track] = stpl;
+            prevLTPL_[track] = ltpl;
         }
     }
 
