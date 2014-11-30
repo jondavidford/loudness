@@ -28,6 +28,7 @@ SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Support/AuditoryTools.cpp \
 ../src/Support/Spline.cpp \
 ../src/Support/Filter.cpp \
+../src/Support/FilterBank.cpp \
 ../src/Support/Model.cpp \
 ../src/Modules/FrameGenerator.cpp \
 ../src/Modules/FIR.cpp \

@@ -289,50 +289,50 @@ namespace loudness{
         {
             //for each window
             int binWriteIdx = 0;
-            int rIdx = track * 2;
-            int lIdx = track * 2 + 1;
+            const int lIdx = track * 2;
+            const int rIdx = track * 2 + 1;
             Real positionSum = 0;
             for(int i=0; i<nWindows_; i++)
             {
                 //fill the buffers
                 for(int j=0; j<windowSizeSamps_[i]; j++)
                 {
-                    fftInputBufR_[j] = input.getSample(rIdx, 0, windowDelay_[i]+j)*windows_[i][j];
                     fftInputBufL_[j] = input.getSample(lIdx, 0, windowDelay_[i]+j)*windows_[i][j];
+                    fftInputBufR_[j] = input.getSample(rIdx, 0, windowDelay_[i]+j)*windows_[i][j];
                 }
 
                 //compute ffts
                 if(uniform_)
                 {
-                    fftw_execute(fftPlansR_[0]);
                     fftw_execute(fftPlansL_[0]);
+                    fftw_execute(fftPlansR_[0]);
                 }
                 else
                 {
-                    fftw_execute(fftPlansR_[i]);
                     fftw_execute(fftPlansL_[i]);
+                    fftw_execute(fftPlansR_[i]);
                 }
 
                 //clear windowed data
                 for(int j=0; j<windowSizeSamps_[i]; j++)
                 {
-                    fftInputBufR_[j] = 0.0;
                     fftInputBufL_[j] = 0.0;
+                    fftInputBufR_[j] = 0.0;
                 }
 
                 //Extract components from band and compute powers
                 Real reR, reL, imR, imL, magR, magL, pos;
                 for(int j=bandBinIndices_[i][0]; j<=bandBinIndices_[i][1]; j++)
                 {
-                    // right channel
-                    reR = fftOutputBufR_[j];
-                    imR = fftOutputBufR_[fftSize_[i]-j];
-                    magR = sqrt(pow(reR,2) + pow(imR, 2));
-
                     // left channel
                     reL = fftOutputBufL_[j];
                     imL = fftOutputBufL_[fftSize_[i]-j];
                     magL = sqrt(pow(reL,2) + pow(imL, 2));
+
+                    // right channel
+                    reR = fftOutputBufR_[j];
+                    imR = fftOutputBufR_[fftSize_[i]-j];
+                    magR = sqrt(pow(reR,2) + pow(imR, 2));
 
                     // calculate spatial position
                     // 0 is all the way left
@@ -357,9 +357,9 @@ namespace loudness{
                     positionSum += pos;
 
                     // set outputs
-                    real_[track][binWriteIdx] = reR + reL;
-                    imag_[track][binWriteIdx] = imR + imL;
-                    output_.setSample(track, binWriteIdx, 0, pow((magR + magL) / 2, 2)); 
+                    real_[track][binWriteIdx] = reL + reR;
+                    imag_[track][binWriteIdx] = imL + imR;
+                    output_.setSample(track, binWriteIdx, 0, pow((magL + magR) / 2, 2)); 
                     binWriteIdx++;
                 }
             }
@@ -369,12 +369,11 @@ namespace loudness{
         }
 
         // next sum tracks to create background masker tracks
-        int maskerWriteIdx;
         Real separation, reduction;
         for (int target = 0; target < nInputs_; target++)
         {
             // initialize masker track with 0's in real and imag components
-            maskerWriteIdx = target + nInputs_;
+            const int maskerWriteIdx = target + nInputs_;
             maskerReal_.assign(nBins_, 0.0);
             maskerImag_.assign(nBins_, 0.0);
             

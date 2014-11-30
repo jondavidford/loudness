@@ -183,7 +183,7 @@ namespace loudness{
             //create module
             if(iir)
                 modules_.push_back(unique_ptr<Module> 
-                        (new IIR(bCoefs, aCoefs))); 
+                        (new IIR(input.getNTracks(), bCoefs, aCoefs))); 
             else
                 modules_.push_back(unique_ptr<Module>
                         (new FIR(bCoefs))); 

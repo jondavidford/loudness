@@ -23,9 +23,10 @@ namespace loudness{
 
     IIR::IIR() : Module("IIR") {};
 
-    IIR::IIR(const RealVec &bCoefs, const RealVec &aCoefs) :
+    IIR::IIR(int nTracks, const RealVec &bCoefs, const RealVec &aCoefs) :
         Module("IIR")
     {
+        setNTracks(nTracks);
         setBCoefs(bCoefs);
         setACoefs(aCoefs);
     }
@@ -36,7 +37,6 @@ namespace loudness{
 
     bool IIR::initializeInternal(const TrackBank &input)
     {
-
         //constants
         int n_b = (int)bCoefs_.size();
         int n_a = (int)aCoefs_.size();
@@ -58,7 +58,9 @@ namespace loudness{
             //Normalise coefficients if a[0] != 1
             normaliseCoefs();
 
-            z_.assign(order_,0.0);
+            int nTracks = input.getNTracks();
+            for (int i = 0; i < nTracks; i++)
+                z_[i].assign(order_,0.0);
 
             //output TrackBank
             output_.initialize(input.getNTracks(), input.getNChannels(), input.getNSamples(), input.getFs());
@@ -84,15 +86,15 @@ namespace loudness{
                 x = input.getSample(track, 0, smp) * gain_;
 
                 //output sample
-                y = bCoefs_[0] * x + z_[0];
+                y = bCoefs_[0] * x + z_[track][0];
                 output_.setSample(track, 0, smp, y);
 
                 //fill delay
                 for (j=1; j<order_; j++)
-                    z_[j-1] = bCoefs_[j] * x + z_[j] - aCoefs_[j] * y;
+                    z_[track][j-1] = bCoefs_[j] * x + z_[track][j] - aCoefs_[j] * y;
 
                 //final sample
-                z_[orderMinus1_] = bCoefs_[order_] * x - aCoefs_[order_] * y;
+                z_[track][orderMinus1_] = bCoefs_[order_] * x - aCoefs_[order_] * y;
             }
         }
     }

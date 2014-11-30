@@ -20,7 +20,7 @@
 #ifndef  IIR_H
 #define  IIR_H
 
-#include "../Support/Filter.h"
+#include "../Support/FilterBank.h"
 
 /*
  * =====================================================================================
@@ -32,7 +32,7 @@
 
 namespace loudness{
 
-    class IIR : public Module, public Filter
+    class IIR : public Module, public FilterBank
     {
         public:
             /*
@@ -43,7 +43,7 @@ namespace loudness{
             *  Parameters:  bCoefs:  Filter coefficients.
             *--------------------------------------------------------------------------------------
             */
-            IIR(const RealVec &bCoefs, const RealVec &aCoefs);
+            IIR(int nTracks, const RealVec &bCoefs, const RealVec &aCoefs);
             IIR();
 
             virtual ~IIR();
