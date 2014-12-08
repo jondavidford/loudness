@@ -18,12 +18,12 @@ int main()
 	const loudness::TrackBank *integratedBank; // 6
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 32;
+	int hopSize = 64;
 	std::vector<std::string> files;
 	files.push_back("../wavs/guitar_l_mono.wav");
-	files.push_back("../wavs/guitar_r_mono.wav");
+	files.push_back("../wavs/guitar_l_mono2.wav");
 	files.push_back("../wavs/bass_l_mono.wav");
-	files.push_back("../wavs/bass_r_mono.wav");
+	files.push_back("../wavs/bass_l_mono2.wav");
 	loudness::AudioFilesToTrackBank audio = loudness::AudioFilesToTrackBank(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
@@ -41,19 +41,22 @@ int main()
 	specificBank = model->getModuleOutput(5);
 	integratedBank = model->getModuleOutput(6);
 
-	nChannels = integratedBank->getNChannels();
+	nChannels = specificBank->getNChannels();
 
 	//processings
-	std::cout << nFrames;
 	for (int frame = 0; frame < nFrames; frame++)
 	{
 	    audio.process();
 	    model->process(*audioBank);
-	    //std::cout << "frame: " << frame << std::endl;
-	    for (int smp = 0; smp < 32; smp++)
-	    	std::cout << audioBank->getSample(0,0,smp) << " ";
-
-	    std::cout << std::endl;
-			//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
+	    // print audio data to file
+	    //for (int smp = 0; smp < hopSize; smp++)
+	    //	std::cout << audioBank->getSample(0,0,smp) << " ";
+	    //std::cout << std::endl;
+	    
+	    double il = 0;
+	    for (int f = 0; f < nChannels; f++)
+	    	il += specificBank->getSample(1,f,0);
+	    std::cout << il << std::endl;
+		//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }
