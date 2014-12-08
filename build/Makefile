@@ -22,6 +22,7 @@ INCS=-I.
 
 SOURCES=../src/cnpy/cnpy.cpp \
 ../src/Modules/AudioFileCutter.cpp \
+../src/Modules/AudioFilesToTrackBank.cpp \
 ../src/Support/TrackBank.cpp \
 ../src/Support/Module.cpp \
 ../src/Support/Timer.cpp \

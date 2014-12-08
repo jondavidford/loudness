@@ -21,11 +21,12 @@
 
 namespace loudness{
 
-    AudioFileCutter::AudioFileCutter(vector<string> fileNames, int frameSize) :
+    AudioFileCutter::AudioFileCutter(string fileName, int frameSize) :
         Module("AudioFileCutter"),
-        fileNames_(fileNames),
+        fileName_(fileName),
         frameSize_(frameSize),
-        fs_(0)
+        fs_(0),
+        sndFile_(nullptr)
     {}
     
     AudioFileCutter::~AudioFileCutter()
@@ -33,19 +34,14 @@ namespace loudness{
         if(initialized_)
         {
             //delete [] audioBuffer_;
-            for (int i = 0; i < nFiles_; i++)
-            {
-                if(sf_close(sndFiles_[i])>0)
-                    LOUDNESS_ERROR("AudioFileCutter: Error closing audio file");
-            }
+            if(sf_close(sndFile_)>0)
+                LOUDNESS_ERROR("AudioFileCutter: Error closing audio file");
         }
     }
 
     bool AudioFileCutter::initialize()
     {
-        nFiles_ = fileNames_.size();
-        sndFiles_.resize(nFiles_);
-        if(loadAudioFiles(true))
+        if(loadAudioFile(true))
         {
             LOUDNESS_DEBUG("Module: Module initialized.");
             if(output_.isInitialized())
@@ -63,142 +59,141 @@ namespace loudness{
         }
     }
 
-    bool AudioFileCutter::loadAudioFiles(bool initialize)
-    {
-        for (int i = 0; i < nFiles_; i++)
+    bool AudioFileCutter::loadAudioFile(bool initialize)
+    { 
+        // If the file is already opened, first close it
+        if (sf_close(sndFile_)>0)
         {
-            // If the file is already opened, first close it
-            if (sf_close(sndFiles_[i])>0)
-            {
-                LOUDNESS_ERROR("AudioFileCutter: Error closing Audio file.");
-                return 0;
-            }
+            LOUDNESS_ERROR("AudioFileCutter: Error closing Audio file.");
+            return 0;
+        }
 
-            // Check we have a filename
-            if(fileNames_[i].empty())
+        // Check we have a filename
+        if(fileName_.empty())
+        {
+            LOUDNESS_ERROR("AudioFileCutter: No file name!");
+            return 0;
+        }
+        else
+        {
+            // Open the audio file
+            SF_INFO fileInfo;
+            fileInfo.format = 0;
+            sndFile_ = sf_open(fileName_.c_str(), SFM_READ, &fileInfo);
+
+            if (!sndFile_) //if null
             {
-                LOUDNESS_ERROR("AudioFileCutter: No file name!");
+                LOUDNESS_ERROR("AudioFileCutter: Failed to open audio file: " 
+                        << fileName_ << ", " 
+                        << sf_strerror(sndFile_));
                 return 0;
             }
             else
             {
-                // Open the audio file
-                SF_INFO fileInfo;
-                fileInfo.format = 0;
-                sndFiles_[i] = sf_open(fileNames_[i].c_str(), SFM_READ, &fileInfo);
+                LOUDNESS_DEBUG("AudioFileCutter: Audio file successfully loaded.");
 
-                if (!sndFiles_[i]) //if null
+                //total number of samples in the audio file and number of frames
+                nSamples_ = fileInfo.frames;
+                nFrames_ = ceil(nSamples_ / (float)frameSize_);
+                duration_ = nSamples_/(Real)fileInfo.samplerate;
+                fs_ = fileInfo.samplerate;
+
+                //force audio buffer size to be a multiple of frameSize_
+                if(nSamples_ < MAXAUDIOBUFFERSIZE)
                 {
-                    LOUDNESS_ERROR("AudioFileCutter: Failed to open audio file: " 
-                            << fileNames_[i] << ", " 
-                            << sf_strerror(sndFiles_[i]));
-                    return 0;
+                    audioBufferSize_ = ceil(nSamples_ / (float)frameSize_) * frameSize_;
                 }
                 else
                 {
-                    LOUDNESS_DEBUG("AudioFileCutter: Audio file successfully loaded.");
+                    audioBufferSize_ = MAXAUDIOBUFFERSIZE * fileInfo.channels;
+                    audioBufferSize_ = ceil(audioBufferSize_ / (float)frameSize_) * frameSize_;
+                }
+                LOUDNESS_DEBUG("AudioFileCutter: Audio buffer size: " << audioBufferSize_);
+                bufferIdx_ = 0;
+                frame_ = 0;
 
-                    //total number of samples in the audio file and number of frames
-                    nSamples_ = fileInfo.frames;
-                    nFrames_ = ceil(nSamples_ / (float)frameSize_);
-                    duration_ = nSamples_/(Real)fileInfo.samplerate;
-                    fs_ = fileInfo.samplerate;
-
-                    //force audio buffer size to be a multiple of frameSize_
-                    if(nSamples_ < MAXAUDIOBUFFERSIZE)
+                if(initialize)
+                {
+                    output_.initialize(1, fileInfo.channels, frameSize_,
+                            fileInfo.samplerate);
+                    audioBuffer_.resize(audioBufferSize_);
+                }
+                else
+                {
+                    if(fileInfo.samplerate!=output_.getFs())
                     {
-                        audioBufferSize_ = ceil(nSamples_ / (float)frameSize_) * frameSize_;
+                        LOUDNESS_WARNING("AudioFileCutter: Sampling frequency: " 
+                                << fileInfo.samplerate << " but previous was: "
+                                << output_.getFs() << ". Continuing anyway...");
                     }
-                    else
+                    if(fileInfo.channels!=output_.getNChannels())
                     {
-                        audioBufferSize_ = MAXAUDIOBUFFERSIZE * fileInfo.channels;
-                        audioBufferSize_ = ceil(audioBufferSize_ / (float)frameSize_) * frameSize_;
-                    }
-                    LOUDNESS_DEBUG("AudioFileCutter: Audio buffer size: " << audioBufferSize_);
-                    bufferIdx_ = 0;
-                    frame_ = 0;
-
-                    if(initialize)
-                    {
-                        output_.initialize(nFiles_, fileInfo.channels, frameSize_,
-                                fileInfo.samplerate);
-                        audioBuffer_.resize(audioBufferSize_);
-                        initialize = false;
-                    }
-                    else
-                    {
-                        if(fileInfo.samplerate!=output_.getFs())
-                        {
-                            LOUDNESS_WARNING("AudioFileCutter: Sampling frequency: " 
-                                    << fileInfo.samplerate << " but previous was: "
-                                    << output_.getFs() << ". Continuing anyway...");
-                        }
-                        if(fileInfo.channels!=output_.getNChannels())
-                        {
-                            LOUDNESS_WARNING("AudioFileCutter: Number of channels: " 
-                                    << fileInfo.channels << " but previous was: "
-                                    << output_.getFs() << ". Continuing anyway...");
-                        }
+                        LOUDNESS_WARNING("AudioFileCutter: Number of channels: " 
+                                << fileInfo.channels << " but previous was: "
+                                << output_.getFs() << ". Continuing anyway...");
                     }
                 }
+                
+                return 1;
             }
         }
-        return 1;
     }
 
     void AudioFileCutter::process()
     {
-        //clear the output signal bank
-        output_.clear();
-
-        int nSamples = output_.getNSamples();
-        int nChannels = output_.getNChannels();
-
         //if initialised and we have an audio file
-        for (int file = 0; file < nFiles_; file++)
+        if(initialized_ && sndFile_)
         {
-            if(initialized_ && sndFiles_[file])
+            //If we have extrated all data from buffer, get more
+            if((bufferIdx_ == 0) || (bufferIdx_ == audioBufferSize_))
             {
-                //If we have extracted all data from buffer, get more
-                if((bufferIdx_ == 0) || (bufferIdx_ == audioBufferSize_))
-                {
-                    int readCount = sf_readf_float(sndFiles_[file], &audioBuffer_[0], audioBufferSize_);
+                int readCount = sf_readf_float(sndFile_, &audioBuffer_[0], audioBufferSize_);
 
-                    //Zero pad when towards the end
-                    if(readCount<audioBufferSize_)
-                        fill(audioBuffer_.begin() + readCount, audioBuffer_.end(),0.0);
+                //Zero pad when towards the end
+                if(readCount<audioBufferSize_)
+                    fill(audioBuffer_.begin() + readCount, audioBuffer_.end(),0.0);
 
-                    LOUDNESS_DEBUG("AudioFileCutter: Number of samples extracted: " << readCount);
+                LOUDNESS_DEBUG("AudioFileCutter: Number of samples extracted: " << readCount);
 
-                    frame_ = 0;
-                    bufferIdx_ = 0;
-                }  
+                frame_ = 0;
+                bufferIdx_ = 0;
+            }  
 
-                LOUDNESS_DEBUG("AudioFileCutter: frame: " << frame_ 
-                        << " buffer index: " << bufferIdx_);
+            LOUDNESS_DEBUG("AudioFileCutter: frame: " << frame_ 
+                    << " buffer index: " << bufferIdx_);
 
-                //Fill the output signal bank
-                for(int i=0; i<nSamples; i += nChannels)
-                {
-                    for(int j=0; j<nChannels; j++)
-                        output_.setSample(file, j, i, audioBuffer_[bufferIdx_ + i + j]);
-                }         
-            }
+            //clear the output signal bank
+            output_.clear(); 
+
+            //Fill the output signal bank
+            int nSamples = output_.getNSamples();
+            int nChannels = output_.getNChannels();
+            for(int i=0; i<nSamples; i += nChannels)
+            {
+                for(int j=0; j<nChannels; j++)
+                    output_.setSample(0, j, i, audioBuffer_[bufferIdx_ + i + j]);
+            }         
+            
+            //increment the frame counter
+            frame_ += 1;
+
+            //update buffer index
+            bufferIdx_ = frame_ * nSamples * nChannels;
+
+            //push through processing pipeline if necessary
+            if(targetModule_)
+                targetModule_->process(output_);
         }
-        //increment the frame counter
-        frame_ += 1;
+    }
 
-        //update buffer index
-        bufferIdx_ = frame_ * nSamples * nChannels;
-
-        //push through processing pipeline if necessary
-        if(targetModule_)
-            targetModule_->process(output_);
+    RealVec AudioFileCutter::getBuffer() const
+    {
+        return output_.getSignal(0, 0);
     }
 
     void AudioFileCutter::resetInternal()
     {
-        loadAudioFiles(false);
+        loadAudioFile(false);
     }
 
     int AudioFileCutter::getNSamples() const

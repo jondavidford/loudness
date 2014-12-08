@@ -3,7 +3,7 @@
 // compile using g++ -std=c++11 test_DynamicLoudnessGM.cpp -lloudness
 
 #include <string>
-#include <loudness/Modules/AudioFileCutter.h>
+#include <loudness/Modules/AudioFilesToTrackBank.h>
 #include <loudness/Models/DynamicPartialLoudnessGM.h>
 
 int main()
@@ -18,13 +18,13 @@ int main()
 	const loudness::TrackBank *integratedBank; // 6
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 512;
+	int hopSize = 32;
 	std::vector<std::string> files;
-	files.push_back("../wavs/guitar_r.wav");
-	files.push_back("../wavs/guitar_l.wav");
-	files.push_back("../wavs/bass_r.wav");
-	files.push_back("../wavs/bass_l.wav");
-	loudness::AudioFileCutter audio = loudness::AudioFileCutter(files, hopSize);
+	files.push_back("../wavs/guitar_l_mono.wav");
+	files.push_back("../wavs/guitar_r_mono.wav");
+	files.push_back("../wavs/bass_l_mono.wav");
+	files.push_back("../wavs/bass_r_mono.wav");
+	loudness::AudioFilesToTrackBank audio = loudness::AudioFilesToTrackBank(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
 	nFrames = audio.getNFrames();
@@ -43,13 +43,17 @@ int main()
 
 	nChannels = integratedBank->getNChannels();
 
-	//processing
+	//processings
+	std::cout << nFrames;
 	for (int frame = 0; frame < nFrames; frame++)
 	{
 	    audio.process();
 	    model->process(*audioBank);
-	    std::cout << "frame: " << frame << std::endl;
-	    //for (int chn = 0; chn < nChannels; chn++)
+	    //std::cout << "frame: " << frame << std::endl;
+	    for (int smp = 0; smp < 32; smp++)
+	    	std::cout << audioBank->getSample(0,0,smp) << " ";
+
+	    std::cout << std::endl << std::endl;
 			//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }
