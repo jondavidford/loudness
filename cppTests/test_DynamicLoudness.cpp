@@ -53,7 +53,7 @@ int main()
 	    for (int smp = 0; smp < 32; smp++)
 	    	std::cout << audioBank->getSample(0,0,smp) << " ";
 
-	    std::cout << std::endl << std::endl;
+	    std::cout << std::endl;
 			//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }

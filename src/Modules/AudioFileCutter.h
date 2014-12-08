@@ -84,7 +84,7 @@ namespace loudness{
          */
         int getNFrames() const;
 
-        RealVec getBuffer() const;
+        Real getSample(int chn, int smp) const;
 
     private:
 

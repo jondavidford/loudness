@@ -186,9 +186,10 @@ namespace loudness{
         }
     }
 
-    RealVec AudioFileCutter::getBuffer() const
+    // CLEAN THIS
+    Real AudioFileCutter::getSample(int chn, int smp) const
     {
-        return output_.getSignal(0, 0);
+        return output_.getSample(0, chn, smp);
     }
 
     void AudioFileCutter::resetInternal()
