@@ -3,7 +3,7 @@
 // compile using g++ -std=c++11 test_DynamicLoudnessGM.cpp -lloudness
 
 #include <string>
-#include <loudness/Modules/AudioFileCutter.h>
+#include <loudness/Modules/AudioFilesToTrackBank.h>
 #include <loudness/Models/DynamicPartialLoudnessGM.h>
 
 int main()
@@ -18,13 +18,13 @@ int main()
 	const loudness::TrackBank *integratedBank; // 6
 	loudness::DynamicPartialLoudnessGM *model;
 	int nFrames, nChannels;
-	int hopSize = 512;
+	int hopSize = 1024;
 	std::vector<std::string> files;
-	files.push_back("../wavs/guitar_r.wav");
-	files.push_back("../wavs/guitar_l.wav");
-	files.push_back("../wavs/bass_r.wav");
-	files.push_back("../wavs/bass_l.wav");
-	loudness::AudioFileCutter audio = loudness::AudioFileCutter(files, hopSize);
+	files.push_back("../wavs/organ-g-left.wav");
+	files.push_back("../wavs/organ-g-left1.wav");
+	files.push_back("../wavs/piano-g-left.wav");
+	files.push_back("../wavs/piano-g-left1.wav");
+	loudness::AudioFilesToTrackBank audio = loudness::AudioFilesToTrackBank(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
 	nFrames = audio.getNFrames();
@@ -41,15 +41,22 @@ int main()
 	specificBank = model->getModuleOutput(5);
 	integratedBank = model->getModuleOutput(6);
 
-	nChannels = integratedBank->getNChannels();
+	nChannels = specificBank->getNChannels();
 
-	//processing
+	//processings
 	for (int frame = 0; frame < nFrames; frame++)
 	{
 	    audio.process();
 	    model->process(*audioBank);
-	    std::cout << "frame: " << frame << std::endl;
-	    //for (int chn = 0; chn < nChannels; chn++)
-			//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
+	    // print audio data to file
+	    //for (int smp = 0; smp < hopSize; smp++)
+	   	//	std::cout << audioBank->getSample(2,0,smp) << " ";
+	    //std::cout << std::endl;
+	    
+	    double il = 0;
+	    for (int f = 0; f < nChannels; f++)
+	   		il += specificBank->getSample(1,f,1);
+	    std::cout << il << std::endl;
+		//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }
