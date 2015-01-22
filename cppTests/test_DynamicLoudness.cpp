@@ -20,10 +20,10 @@ int main()
 	int nFrames, nChannels;
 	int hopSize = 1024;
 	std::vector<std::string> files;
-	files.push_back("../wavs/piano_chord.wav");
-	files.push_back("../wavs/piano_chord1.wav");
-	files.push_back("../wavs/piano_chord_delay.wav");
-	files.push_back("../wavs/piano_chord_delay1.wav");
+	files.push_back("../wavs/organ-g-left.wav");
+	files.push_back("../wavs/organ-g-left1.wav");
+	files.push_back("../wavs/piano-g-left.wav");
+	files.push_back("../wavs/piano-g-left1.wav");
 	loudness::AudioFilesToTrackBank audio = loudness::AudioFilesToTrackBank(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
@@ -49,14 +49,14 @@ int main()
 	    audio.process();
 	    model->process(*audioBank);
 	    // print audio data to file
-	    //for (int smp = 0; smp < hopSize; smp++)
-	   	//	std::cout << audioBank->getSample(2,0,smp) << " ";
-	    //std::cout << std::endl;
+	    for (int smp = 0; smp < hopSize; smp++)
+	   		std::cout << audioBank->getSample(2,0,smp) << " ";
+	    std::cout << std::endl;
 	    
 	    double il = 0;
 	    for (int f = 0; f < nChannels; f++)
 	   		il += specificBank->getSample(1,f,1);
-	    std::cout << il << std::endl;
+	    //std::cout << il << std::endl;
 		//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }
