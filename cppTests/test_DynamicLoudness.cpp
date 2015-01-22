@@ -49,14 +49,14 @@ int main()
 	    audio.process();
 	    model->process(*audioBank);
 	    // print audio data to file
-	    for (int smp = 0; smp < hopSize; smp++)
-	   		std::cout << audioBank->getSample(2,0,smp) << " ";
-	    std::cout << std::endl;
+	    //for (int smp = 0; smp < hopSize; smp++)
+	   	//	std::cout << audioBank->getSample(2,0,smp) << " ";
+	    //std::cout << std::endl;
 	    
 	    double il = 0;
 	    for (int f = 0; f < nChannels; f++)
-	   		il += specificBank->getSample(1,f,1);
-	    //std::cout << il << std::endl;
+	   		il += specificBank->getSample(1,f,0);
+	    std::cout << il << std::endl;
 		//std::cout << powerSpectrum->getSpatialPosition(0, chn) << std::endl;
 	}
 }
