@@ -20,10 +20,10 @@ int main()
 	int nFrames, nChannels;
 	int hopSize = 1024;
 	std::vector<std::string> files;
-	files.push_back("../wavs/organ-g-left.wav");
-	files.push_back("../wavs/organ-g-left1.wav");
-	files.push_back("../wavs/piano-g-left.wav");
-	files.push_back("../wavs/piano-g-left1.wav");
+	files.push_back("../wavs/piano_silenced.wav");
+	files.push_back("../wavs/piano_silenced1.wav");
+	files.push_back("../wavs/modsine.wav");
+	files.push_back("../wavs/modsine1.wav");
 	loudness::AudioFilesToTrackBank audio = loudness::AudioFilesToTrackBank(files, hopSize);
 	audio.initialize();
 	audioBank = audio.getOutput();
@@ -50,7 +50,7 @@ int main()
 	    model->process(*audioBank);
 	    // print audio data to file
 	    //for (int smp = 0; smp < hopSize; smp++)
-	   	//	std::cout << audioBank->getSample(2,0,smp) << " ";
+	   	//	std::cout << audioBank->getSample(0,0,smp) << " ";
 	    //std::cout << std::endl;
 	    
 	    double il = 0;
