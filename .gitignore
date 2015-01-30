@@ -4,4 +4,4 @@
 *.o
 *.so.*
 *.out
-Excluded
+*.so.0.1.0

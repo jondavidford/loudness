@@ -31,7 +31,7 @@ namespace loudness{
     {
     }
 
-    bool FrameGenerator::initializeInternal(const SignalBank &input)
+    bool FrameGenerator::initializeInternal(const TrackBank &input)
     {
         if(hopSize_ > frameSize_)
         {
@@ -61,90 +61,82 @@ namespace loudness{
         hopSize_ = inputBufferSize_*ceil(hopSize_/(Real) inputBufferSize_);
         LOUDNESS_DEBUG(name_ << ": Hop size in samples: " << hopSize_);
 
-        /*  
-        if((frameSize_ % hopSize_)>0)
-        {
-            LOUDNESS_WARNING(name_ << 
-                    ": Frame size is not an integer multiple of the hop size" 
-                    << "...automatically correcting.");
-
-            frameSize_ = hopSize_ * ceil(frameSize_ / (Real)hopSize_);
-        }
-        */
         LOUDNESS_DEBUG(name_ << ": Frame size in samples: " << frameSize_);
     
         //The audio buffer must also be an integer multiple of inputBufSize_
         audioBufferSize_ = inputBufferSize_* ceil(frameSize_/(Real)inputBufferSize_);
 
-        /*  
-        if(hopSize_ > (audioBufferSize_ - inputBufferSize_))
-            audioBufferSize_ += inputBufferSize_;
-        */
-
         //OK, allocate memory
-        audioBuffer_.assign(audioBufferSize_, 0.0);
+        nTracks_ = input.getNTracks();
+        audioBuffer_.resize(nTracks_);
+        for (int track = 0; track < nTracks_; track++)
+            audioBuffer_[track].assign(audioBufferSize_, 0.0);
+
         LOUDNESS_DEBUG(name_ << 
                 ": Audio buffer size in samples: " 
                 << audioBufferSize_);
         
         //Number of frames until we reach the end of buffer
-        initNFramesFull_ = audioBufferSize_ / inputBufferSize_;
-        nFramesFull_ = hopSize_ / inputBufferSize_; //will be an int >= 1
+        initNFramesFull_.assign(nTracks_, audioBufferSize_ / inputBufferSize_);
+        nFramesFull_.assign(nTracks_, hopSize_ / inputBufferSize_); //will be an int >= 1
         LOUDNESS_DEBUG(name_
                 << ": Number of process calls until we can extract first frame: " 
                 << initNFramesFull_
-                << "\n Number of process calls until we can extract further frames: " 
+                << "\n Number of process calls until we can extract further frames: "
                 << nFramesFull_);
 
-        readIdx_ = 0;
-        writeIdx_ = 0;
-        count_ = 0;
+        readIdx_.assign(nTracks_, 0);
+        writeIdx_.assign(nTracks_, 0);
+        count_.assign(nTracks_, 0);
 
         //initialise the output signal
-        output_.initialize(1, frameSize_, input.getFs());
+        output_.initialize(nTracks_, 1, frameSize_, input.getFs());
         output_.setFrameRate(input.getFs()/(Real)hopSize_);
 
         return 1;
     }
 
-    void FrameGenerator::processInternal(const SignalBank &input)
+    void FrameGenerator::processInternal(const TrackBank &input)
     {
 
         //fill internal buffer
-        for(int i=0; i<inputBufferSize_; i++)
-            audioBuffer_[writeIdx_++] = input.getSample(0, i);
-        //wrap write index
-        writeIdx_ = writeIdx_ % audioBufferSize_;
-
-        count_++;
-        if(count_ == initNFramesFull_)
+        for (int track=0; track < nTracks_; track++)
         {
-            LOUDNESS_DEBUG(name_ << ": readIdx_ : " << readIdx_);
+            for(int i=0; i<inputBufferSize_; i++)
+                audioBuffer_[track][writeIdx_[track]++] = input.getSample(track, 0, i);
+            //wrap write index
+            writeIdx_[track] = writeIdx_[track] % audioBufferSize_;
 
-            //output frame
-            for(int i=0; i<frameSize_; i++)
+            count_[track]++;
+            if(count_[track] == initNFramesFull_[track])
             {
-                output_.setSample(0, i, audioBuffer_[readIdx_++]);
-                readIdx_ = readIdx_ % audioBufferSize_;
+                LOUDNESS_DEBUG(name_ << ": readIdx_ : " << readIdx_[track]);
+
+                //output frame
+                for(int i=0; i<frameSize_; i++)
+                {
+                    output_.setSample(track, 0, i, audioBuffer_[track][readIdx_[track]++]);
+                    readIdx_[track] = readIdx_[track] % audioBufferSize_;
+                }
+                readIdx_[track] = (writeIdx_[track] + hopSize_) % audioBufferSize_;
+
+                output_.setTrig(track, 1);
+
+                count_[track] = 0;
+                initNFramesFull_[track] = nFramesFull_[track];
             }
-            readIdx_ = (writeIdx_ + hopSize_) % audioBufferSize_;
-
-            output_.setTrig(1);
-
-            count_ = 0;
-            initNFramesFull_ = nFramesFull_;
+            else
+                output_.setTrig(track, 0);
         }
-        else
-            output_.setTrig(0);
     }
 
     void FrameGenerator::resetInternal()
     {
-        initNFramesFull_ = audioBufferSize_ / inputBufferSize_;
-        nFramesFull_ = hopSize_ / inputBufferSize_;
-        readIdx_ = 0;
-        writeIdx_ = 0;
-        count_ = 0;
+        initNFramesFull_.assign(nTracks_, audioBufferSize_ / inputBufferSize_);
+        nFramesFull_.assign(nTracks_, hopSize_ / inputBufferSize_);
+        readIdx_.assign(nTracks_, 0);
+        writeIdx_.assign(nTracks_, 0);
+        count_.assign(nTracks_, 0);
     }
 
     void FrameGenerator::setFrameSize(int frameSize)

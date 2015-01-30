@@ -31,7 +31,7 @@ namespace loudness{
      * @class AudioFileCutter
      * 
      * @brief Extracts a frame of samples from an audio file and puts the result
-     * into an output SignalBank for processing.
+     * into an output TrackBank for processing.
      *
      * This class uses an internal buffer to bring a block of samples into
      * memory, from which frames are extracted.
@@ -54,7 +54,7 @@ namespace loudness{
          * @param fileName  Path to the audio file.
          * @param frameSize Number of samples in the frame.
          */
-        AudioFileCutter(string fileName="", int frameSize = 512);
+        AudioFileCutter(vector<string> fileNames, int frameSize = 512);
 
         virtual ~AudioFileCutter();
         virtual bool initialize();
@@ -87,25 +87,25 @@ namespace loudness{
     private:
 
         /* Hmmm */
-        virtual bool initializeInternal(const SignalBank &input){return 0;};
-        virtual void processInternal(const SignalBank &input){};
+        virtual bool initializeInternal(const TrackBank &input){return 0;};
+        virtual void processInternal(const TrackBank &input){};
         /**
          * @brief Loads an audio file specified by @a fileName_;
          *
          * @param initialize Set to true if you want the output bank to be
          * reinitialised and false if not.
          */
-        bool loadAudioFile(bool initialize);
+        bool loadAudioFiles(bool initialize);
 
         /**
          * @brief Calls the method loadAudioFile.
          */
         virtual void resetInternal();
 
-        string fileName_;
-        int frameSize_, nSamples_, nFrames_, fs_;
+        vector<string> fileNames_;
+        int frameSize_, nSamples_, nFrames_, fs_, nFiles_;
         int audioBufferSize_, bufferIdx_, frame_;
-        SNDFILE* sndFile_;
+        vector<SNDFILE*> sndFiles_;
         vector<float> audioBuffer_;
         Real duration_;
 

@@ -20,7 +20,7 @@
 #ifndef MODULE_H
 #define MODULE_H
 
-#include "SignalBank.h"
+#include "TrackBank.h"
 
 namespace loudness{
 
@@ -35,29 +35,29 @@ namespace loudness{
      *
      * After calling a module's constructor with the appropriate input
      * arguments, the module can be initialised by passing a reference to the
-     * input SignalBank to initialize(), which in turn calls
+     * input TrackBank to initialize(), which in turn calls
      * initializeInternal() where the bulk of the work takes place. Upon
-     * successful initialisation, an output SignalBank is setup for storing the
+     * successful initialisation, an output TrackBank is setup for storing the
      * processing result. If a module has a target module (see
      * setTargetModule()), then it is also initialised by passing the output
-     * SignalBank to the input of the target module function
+     * TrackBank to the input of the target module function
      * initializeInternal(). This allows the ins and outs of modules to be
      * connected and thus create a processing pipeline. 
      *
-     * To process a SignalBank, pass a reference to the process() function.
+     * To process a TrackBank, pass a reference to the process() function.
      * This will call the module specific processInternal() function which will
-     * pass the processed SignalBank (output) to it's target for further
-     * processing (input). The input SignalBank passed to process() must have
+     * pass the processed TrackBank (output) to it's target for further
+     * processing (input). The input TrackBank passed to process() must have
      * the same number channels, number of samples and centre frequencies as the
      * one used to initialise the module. Some modules do not take an input
-     * SignalBank but instead generate their own input. In this case,
+     * TrackBank but instead generate their own input. In this case,
      * initialize() and process() are called with no arguments. Note that
-     * processInternal() is only called if the SignalBank trigger is 1 (which is
+     * processInternal() is only called if the TrackBank trigger is 1 (which is
      * the default), otherwise the output bank will not be updated.
      *
      * @author Dominic Ward
      *
-     * @sa SignalBank
+     * @sa TrackBank
      */
     class Module
     {
@@ -77,17 +77,17 @@ namespace loudness{
         virtual bool initialize();
 
         /**
-         * @brief Initialises a module with an input SignalBank.
+         * @brief Initialises a module with an input TrackBank.
          *
          * This calls initializeInternal() and checks for a target if
          * successfully initialised. If a target module exists, it too is
          * initialised.
          *
-         * @param input The input SignalBank for processing.
+         * @param input The input TrackBank for processing.
          *
          * @return true if module has been initialised, false otherwise.
          */
-        virtual bool initialize(const SignalBank &input);
+        virtual bool initialize(const TrackBank &input);
 
         /**
          * @brief Processes a self-generated input.
@@ -99,23 +99,23 @@ namespace loudness{
         virtual void process();
 
         /**
-         * @brief Processes the input SignalBank.
+         * @brief Processes the input TrackBank.
          *
-         * @param input The input SignalBank to be processed. Must be same
+         * @param input The input TrackBank to be processed. Must be same
          * structure as the one used to initialise the module.
          */
-        virtual void process(const SignalBank &input);
+        virtual void process(const TrackBank &input);
 
         /**
          * @brief Restores a module to intialisation state and clears the
-         * contents of it's output SignalBank.
+         * contents of it's output TrackBank.
          */
         void reset();
 
         /**
          * @brief Adds a single target module to the object.  
          *
-         * Once processed, the output SignalBank is passed as input to the
+         * Once processed, the output TrackBank is passed as input to the
          * target module for processing. Note that the target module must
          * continue to exist for the lifetime of the aggregate object when
          * initialize(), process() or reset() are called.
@@ -137,12 +137,12 @@ namespace loudness{
         bool isInitialized() const;
 
         /**
-         * @brief Returns a pointer to the output SignalBank used for storing the
+         * @brief Returns a pointer to the output TrackBank used for storing the
          * processing result.
          *
-         * @return SignalBank pointer.
+         * @return TrackBank pointer.
          */
-        const SignalBank* getOutput() const;
+        const TrackBank* getOutput() const;
 
         /**
          * @brief Returns the name of the module.
@@ -153,14 +153,14 @@ namespace loudness{
 
     protected:
         //Pure virtual functions
-        virtual bool initializeInternal(const SignalBank &input) = 0;
-        virtual void processInternal(const SignalBank &input) = 0;
+        virtual bool initializeInternal(const TrackBank &input) = 0;
+        virtual void processInternal(const TrackBank &input) = 0;
         virtual void resetInternal() = 0;
 
         //members
         bool initialized_;
         Module *targetModule_;
-        SignalBank output_;
+        TrackBank output_;
         string name_;
     };
 }

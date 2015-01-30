@@ -54,6 +54,27 @@ namespace loudness{
     }
 
     /**
+     * @brief Converts frequency in Hz to K Parameter from Glasberg and Moore (1997).
+     * Data from Glasberg and Moore 1997 was fit using least squares regression on the
+     * following equation:
+     *
+     * y = A * (1 - exp(B * x)) + C
+     * A = -20.633278427935698
+     * B = -0.0084029760716993127
+     * C = 17.705153743387456
+     *
+     * @param freq Frequency in Hz.
+     *
+     * @return K value
+     */
+    inline Real FreqToKdB(Real freq)
+    {
+        return  -20.633278427935698
+                * (1.0 - exp(-0.0084029760716993127 * freq))
+                + 17.705153743387456;
+    }
+
+    /**
      * @brief Converts ERB number in Cams to frequency in Hz.
      *
      * See ANSI S3.04-2007 sec 3.5
@@ -116,6 +137,8 @@ namespace loudness{
      * @return Loudness in phons.
      */
     Real SoneToPhon(Real sone, bool ansiS3407);
+
+    Real separationToReduction(Real separation);
 
     /**
      * @class OME

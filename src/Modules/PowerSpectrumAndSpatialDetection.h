@@ -17,8 +17,8 @@
  * along with Loudness.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-#ifndef POWERSPECTRUM_H
-#define POWERSPECTRUM_H
+#ifndef POWERSPECTRUMANDSPATIALDETECTION_H
+#define POWERSPECTRUMANDSPATIALDETECTION_H
 
 #include <fftw3.h>
 #include "../Support/Module.h"
@@ -26,7 +26,7 @@
 namespace loudness{
 
     /**
-     * @class PowerSpectrum
+     * @class PowerSpectrumAndSpatialDetection
      *
      * @brief Computes the power spectrum of an input TrackBank.  
      *
@@ -63,20 +63,20 @@ namespace loudness{
      *
      * @sa FrameGenerator
      */
-    class PowerSpectrum: public Module
+    class PowerSpectrumAndSpatialDetection: public Module
     {
     public:
 
         /**
-         * @brief Constructs a PowerSpectrum object.
+         * @brief Constructs a PowerSpectrumAndSpatialDetection object.
          *
          * @param bandFreqsHz A vector of consecutive band edges in Hz.
          * @param windowSizeSecs A vector of window lengths for each band in ms.
          * @param uniform true for uniform spectral sampling, false otherwise.
          */
-        PowerSpectrum(const RealVec& bandFreqsHz, const RealVec& windowSizeSecs, bool uniform);
+        PowerSpectrumAndSpatialDetection(const RealVec& bandFreqsHz, const RealVec& windowSizeSecs, bool uniform);
 
-        virtual ~PowerSpectrum();
+        virtual ~PowerSpectrumAndSpatialDetection();
 
     private:
 
@@ -88,13 +88,19 @@ namespace loudness{
 
         void hannWindow(RealVec &w, int fftSize);
 
-        RealVec bandFreqsHz_, windowSizeSecs_;
+        
+        RealVecVec real_;
+        RealVecVec imag_;
+        RealVec bandFreqsHz_, windowSizeSecs_, avgPositions_;
         bool uniform_;
-        int nWindows_;
+        int nWindows_, nBins_, nTracks_, nInputs_;
         Real temporalCentre_;
-        Real *fftInputBuf_, *fftOutputBuf_;
+        Real *fftInputBufR_, *fftOutputBufR_, *fftInputBufL_, *fftOutputBufL_;
         vector<int> windowSizeSamps_, fftSize_, windowDelay_;
-        vector<fftw_plan> fftPlans_;
+        vector<fftw_plan> fftPlansR_;
+        vector<fftw_plan> fftPlansL_;
+        RealVec maskerReal_;
+        RealVec maskerImag_;
         RealVecVec windows_;
         vector<vector<int> > bandBinIndices_; 
     };

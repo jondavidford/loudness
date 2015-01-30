@@ -59,7 +59,7 @@ namespace loudness{
         releaseLTLCoef_ = 1-exp(-timeStep_/tau);
     }
 
-    bool IntegratedLoudnessGM::initializeInternal(const SignalBank &input)
+    bool IntegratedLoudnessGM::initializeInternal(const TrackBank &input)
     {
         if(input.getNChannels()<1)
         {
@@ -109,58 +109,61 @@ namespace loudness{
         setAttackLTLCoef(-0.001/log(1-0.01));
         setReleaseLTLCoef(-0.001/log(1-0.0005));
 
-        //output SignalBank
-        output_.initialize(3, 1, input.getFs());
+        //output TrackBank
+        output_.initialize(input.getNTracks(), 3, 1, input.getFs());
         output_.setFrameRate(input.getFrameRate());
 
         return 1;
     }
 
-    void IntegratedLoudnessGM::processInternal(const SignalBank &input)
+    void IntegratedLoudnessGM::processInternal(const TrackBank &input)
     {       
         //instantaneous loudness
-        Real il = 0;
-        if(uniform_)
+        for (int track = 0; track < input.getNTracks(); track++)
         {
-            for(int chn=0; chn<input.getNChannels(); chn++)
-                il += input.getSample(chn, 0);
-        }
-        else
-        {
-            for(int chn=0; chn<input.getNChannels()-1; chn++)
+            Real il = 0;
+            if(uniform_)
             {
-                il += input.getSample(chn,0)*camDif_[chn] + 0.5*camDif_[chn]*
-                    (input.getSample(chn+1,0)-input.getSample(chn,0));
+                for(int chn=0; chn<input.getNChannels(); chn++)
+                    il += input.getSample(track, chn, 1);
             }
+            else
+            {
+                for(int chn=0; chn<input.getNChannels()-1; chn++)
+                {
+                    il += input.getSample(track, chn, 1)*camDif_[chn] + 0.5*camDif_[chn]*
+                        (input.getSample(track, chn+1, 1)-input.getSample(track, chn, 1));
+                }
+            }
+
+            //apply scaling factor
+            il *= cParam_;
+
+            //short-term loudness
+            Real prevSTL = output_.getSample(track, 1, 0);
+            Real stl = 0.0;
+
+            if(il>prevSTL)
+                stl = attackSTLCoef_*(il-prevSTL) + prevSTL;
+            else
+                stl = releaseSTLCoef_*(il-prevSTL) + prevSTL;
+
+            //long-term loudness
+            Real prevLTL = output_.getSample(track, 2, 0);
+            Real ltl = 0.0;
+            if(stl>prevLTL)
+                ltl = attackLTLCoef_*(stl-prevLTL) + prevLTL;
+            else
+                ltl = releaseLTLCoef_*(stl-prevLTL) + prevLTL;
+            
+            //fill output TrackBank
+            output_.setSample(track, 0, 0, il);
+            output_.setSample(track, 1, 0, stl);
+            output_.setSample(track, 2, 0, ltl);
         }
-
-        //apply scaling factor
-        il *= cParam_;
-
-        //short-term loudness
-        Real prevSTL = output_.getSample(1,0);
-        Real stl = 0.0;
-
-        if(il>prevSTL)
-            stl = attackSTLCoef_*(il-prevSTL) + prevSTL;
-        else
-            stl = releaseSTLCoef_*(il-prevSTL) + prevSTL;
-
-        //long-term loudness
-        Real prevLTL = output_.getSample(2,0);
-        Real ltl = 0.0;
-        if(stl>prevLTL)
-            ltl = attackLTLCoef_*(stl-prevLTL) + prevLTL;
-        else
-            ltl = releaseLTLCoef_*(stl-prevLTL) + prevLTL;
-        
-        //fill output SignalBank
-        output_.setSample(0,0,il);
-        output_.setSample(1,0,stl);
-        output_.setSample(2,0,ltl);
     }
 
-    //output SignalBanks are cleared so not to worry about filter state
+    //output TrackBanks are cleared so not to worry about filter state
     void IntegratedLoudnessGM::resetInternal()
     {
     }

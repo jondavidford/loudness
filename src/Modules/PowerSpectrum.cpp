@@ -45,7 +45,7 @@ namespace loudness{
         }
     }
 
-    bool PowerSpectrum::initializeInternal(const SignalBank &input)
+    bool PowerSpectrum::initializeInternal(const TrackBank &input)
     {
         
         //number of windows
@@ -151,7 +151,7 @@ namespace loudness{
         windowDelay_.resize(nWindows_);
         for(int i=0; i<nWindows_; i++)
         {
-            //SignalBank offset for temporal alignment
+            //TrackBank offset for temporal alignment
             Real tc2 = (windowSizeSamps_[i]-1)/2.0;
             windowDelay_[i] = (int)round(temporalCentre_ - tc2);
 
@@ -224,8 +224,8 @@ namespace loudness{
         }
         #endif 
 
-        //initialize the output SignalBank
-        output_.initialize(nBins, 1, fs);
+        //initialize the output TrackBank
+        output_.initialize(input.getNTracks(), nBins, 1, fs);
         output_.setFrameRate(input.getFrameRate());
 
         //output frequencies in Hz
@@ -240,33 +240,36 @@ namespace loudness{
         return 1;
     }
 
-    void PowerSpectrum::processInternal(const SignalBank &input)
+    void PowerSpectrum::processInternal(const TrackBank &input)
     {
-        //for each window
-        int binWriteIdx = 0;
-        for(int i=0; i<nWindows_; i++)
+        for (int track=0; track < input.getNTracks(); track++)
         {
-            //fill the buffer
-            for(int j=0; j<windowSizeSamps_[i]; j++)
-                fftInputBuf_[j] = input.getSample(0, windowDelay_[i]+j)*windows_[i][j];
-
-            //compute fft
-            if(uniform_)
-                fftw_execute(fftPlans_[0]);
-            else
-                fftw_execute(fftPlans_[i]);
-
-            //clear windowed data
-            for(int j=0; j<windowSizeSamps_[i]; j++)
-                fftInputBuf_[j] = 0.0;
-
-            //Extract components from band and compute powers
-            Real re, im;
-            for(int j=bandBinIndices_[i][0]; j<=bandBinIndices_[i][1]; j++)
+            //for each window
+            int binWriteIdx = 0;
+            for(int i=0; i<nWindows_; i++)
             {
-                re = fftOutputBuf_[j];
-                im = fftOutputBuf_[fftSize_[i]-j];
-                output_.setSample(binWriteIdx++, 0, re*re + im*im);
+                //fill the buffer
+                for(int j=0; j<windowSizeSamps_[i]; j++)
+                    fftInputBuf_[j] = input.getSample(track, 0, windowDelay_[i]+j)*windows_[i][j];
+
+                //compute fft
+                if(uniform_)
+                    fftw_execute(fftPlans_[0]);
+                else
+                    fftw_execute(fftPlans_[i]);
+
+                //clear windowed data
+                for(int j=0; j<windowSizeSamps_[i]; j++)
+                    fftInputBuf_[j] = 0.0;
+
+                //Extract components from band and compute powers
+                Real re, im;
+                for(int j=bandBinIndices_[i][0]; j<=bandBinIndices_[i][1]; j++)
+                {
+                    re = fftOutputBuf_[j];
+                    im = fftOutputBuf_[fftSize_[i]-j];
+                    output_.setSample(track, binWriteIdx++, 0, re*re + im*im);
+                }
             }
         }
     }

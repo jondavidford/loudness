@@ -36,7 +36,7 @@ namespace loudness{
         return 0;
     }
 
-    bool Module::initialize(const SignalBank &input)
+    bool Module::initialize(const TrackBank &input)
     {
         if(!initializeInternal(input))
         {
@@ -60,9 +60,9 @@ namespace loudness{
 
     void Module::process(){}
 
-    void Module::process(const SignalBank &input)
+    void Module::process(const TrackBank &input)
     {
-        if(initialized_ && input.getTrig())
+        if(initialized_ && input.getAndTrigs())
         {
             processInternal(input);
             if(targetModule_)
@@ -97,7 +97,7 @@ namespace loudness{
         return initialized_;
     }
 
-    const SignalBank* Module::getOutput() const
+    const TrackBank* Module::getOutput() const
     {
         return &output_;
     }

@@ -17,15 +17,15 @@
  * along with Loudness.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-#ifndef INTEGRATEDLOUDNESSGM_H
-#define INTEGRATEDLOUDNESSGM_H
+#ifndef INTEGRATEDPARTIALLOUDNESSGM_H
+#define INTEGRATEDPARTIALLOUDNESSGM_H
 
 #include "../Support/Module.h"
 
 namespace loudness{
 
     /**
-     * @class IntegratedLoudnessGM
+     * @class IntegratedPartialLoudnessGM
      *
      * @brief Given a specific loudness pattern this class computes the
      * following loudness values: Instantaneous loudness (integrated specific
@@ -40,13 +40,13 @@ namespace loudness{
      *
      * @author Dominic Ward
      */
-    class IntegratedLoudnessGM : public Module
+    class IntegratedPartialLoudnessGM : public Module
     {
     public:
 
-        IntegratedLoudnessGM(bool diotic=true, bool uniform=true, Real cParam=1);
+        IntegratedPartialLoudnessGM(bool diotic=true, bool uniform=true, Real cParam=1);
 
-        virtual ~IntegratedLoudnessGM();
+        virtual ~IntegratedPartialLoudnessGM();
 
         void setAttackSTLCoef(Real tau);
         void setReleaseSTLCoef(Real tau);
@@ -63,6 +63,8 @@ namespace loudness{
         Real attackSTLCoef_, releaseSTLCoef_;
         Real attackLTLCoef_, releaseLTLCoef_;
         Real camStep_, timeStep_;
+        RealVec prevSTL_, prevLTL_;
+        RealVec prevSTPL_, prevLTPL_;
         RealVec camDif_;
     };
 }

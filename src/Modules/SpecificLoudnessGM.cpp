@@ -29,7 +29,7 @@ namespace loudness{
 
     SpecificLoudnessGM::~SpecificLoudnessGM() {}
 
-    bool SpecificLoudnessGM::initializeInternal(const SignalBank &input)
+    bool SpecificLoudnessGM::initializeInternal(const TrackBank &input)
     {
         //c value from ANSI 2007
         cParam_ = 0.046871;
@@ -67,57 +67,59 @@ namespace loudness{
         }
         LOUDNESS_DEBUG("SpecificLoudnessGM: number of filters <500 Hz: " << nFiltersLT500_);
 
-        //output SignalBank
+        //output TrackBank
         output_.initialize(input);
 
         return 1;
     }
 
-    void SpecificLoudnessGM::processInternal(const SignalBank &input)
+    void SpecificLoudnessGM::processInternal(const TrackBank &input)
     {
         Real excLin, sl=0.0;
-
-        for(int i=0; i<input.getNChannels(); i++)
+        for (track = 0; track < input.getNTracks(); track++)
         {
-            excLin = input.getSample(i,0);
-
-            //checked out 2.4.14
-            //high level
-            if (excLin > 1e10)
+            for(int i=0; i<input.getNChannels(); i++)
             {
-                if(ansiS3407_)
-                    sl = pow((excLin/1.0707),0.2);
-                else
-                    sl = pow((excLin/1.04e6),0.5);
-            }
-            else if(i<nFiltersLT500_) //low freqs
-            { 
-                if(excLin>eThrqParam_[i]) //medium level
+                excLin = input.getSample(track, i, 0);
+
+                //checked out 2.4.14
+                //high level
+                if (excLin > 1e10)
                 {
-                    sl = (pow(gParam_[i]*excLin+aParam_[i], alphaParam_[i])-
-                            pow(aParam_[i],alphaParam_[i]));
+                    if(ansiS3407_)
+                        sl = pow((excLin/1.0707),0.2);
+                    else
+                        sl = pow((excLin/1.04e6),0.5);
                 }
-                else //low level
-                {
-                    sl = pow((2*excLin)/(excLin+eThrqParam_[i]), 1.5)*
-                        (pow(gParam_[i]*excLin+aParam_[i],alphaParam_[i])
-                            -pow(aParam_[i],alphaParam_[i]));
+                else if(i<nFiltersLT500_) //low freqs
+                { 
+                    if(excLin>eThrqParam_[i]) //medium level
+                    {
+                        sl = (pow(gParam_[i]*excLin+aParam_[i], alphaParam_[i])-
+                                pow(aParam_[i],alphaParam_[i]));
+                    }
+                    else //low level
+                    {
+                        sl = pow((2*excLin)/(excLin+eThrqParam_[i]), 1.5)*
+                            (pow(gParam_[i]*excLin+aParam_[i],alphaParam_[i])
+                                -pow(aParam_[i],alphaParam_[i]));
+                    }
                 }
-            }
-            else //high freqs (variables are constant >= 500 Hz)
-            { 
-                if(excLin>2.3604782331805771) //medium level
-                {
-                    sl = pow(excLin+4.72096, 0.2)-1.3639739128330546;
-                } 
-                else //low level
-                {
-                    sl = pow((2*excLin)/(excLin+2.3604782331805771), 1.5)*
-                        (pow(excLin+4.72096, 0.2)-1.3639739128330546);
+                else //high freqs (variables are constant >= 500 Hz)
+                { 
+                    if(excLin>2.3604782331805771) //medium level
+                    {
+                        sl = pow(excLin+4.72096, 0.2)-1.3639739128330546;
+                    } 
+                    else //low level
+                    {
+                        sl = pow((2*excLin)/(excLin+2.3604782331805771), 1.5)*
+                            (pow(excLin+4.72096, 0.2)-1.3639739128330546);
+                    }
                 }
+                
+                output_.setSample(track, i, 0, cParam_*sl);
             }
-            
-            output_.setSample(i, 0, cParam_*sl);
         }
     }
 

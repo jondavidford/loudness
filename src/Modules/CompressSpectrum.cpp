@@ -30,7 +30,7 @@ namespace loudness{
 
     CompressSpectrum::~CompressSpectrum() {}
 
-    bool CompressSpectrum::initializeInternal(const SignalBank &input)
+    bool CompressSpectrum::initializeInternal(const TrackBank &input)
     {
         if(input.getNChannels()<2)
         {
@@ -112,7 +112,7 @@ namespace loudness{
         }
 
         //add the final frequency
-        if(binIdx[binIdx.size()-1] < nChannels)
+        if(binIdx.back() < nChannels)
             binIdx.push_back(nChannels);
 
         //PART 2
@@ -164,28 +164,31 @@ namespace loudness{
         #endif
 
         //set output SignalBank
-        output_.initialize(cfs.size(), 1, input.getFs());
+        output_.initialize(input.getNTracks(), cfs.size(), 1, input.getFs());
         output_.setCentreFreqs(cfs);
         output_.setFrameRate(input.getFrameRate());
 
         return 1;
     }
 
-    void CompressSpectrum::processInternal(const SignalBank &input)
+    void CompressSpectrum::processInternal(const TrackBank &input)
     {
 
-        Real out = 0;
-        int i = 0, j = 0;
-        while(i<output_.getNChannels()) 
+        for (int track = 0; track < input.getNTracks(); track++)
         {
-            if(j<upperBandIdx_[i])
+            Real out = 0;
+            int i = 0, j = 0;
+            while(i<output_.getNChannels()) 
             {
-                out += input.getSample(j++, 0);
-            }
-            else
-            {
-                output_.setSample(i++, 0, out);
-                out = 0;
+                if(j<upperBandIdx_[i])
+                {
+                    out += input.getSample(track, j++, 0);
+                }
+                else
+                {
+                    output_.setSample(track, i++, 0, out);
+                    out = 0;
+                }
             }
         }
     }
