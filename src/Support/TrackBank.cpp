@@ -84,6 +84,33 @@ namespace loudness{
         }
     }
 
+    void TrackBank::resize(int nTracks)
+    {
+        if (initialized_)
+        {
+            nTracks_ = nTracks;
+            frameRate_ = fs_/(Real)nSamples_;
+            trig_.assign(nTracks_, 1);
+            initialized_ = true;
+            centreFreqs_.assign(nChannels_, 0.0);
+
+            signal_.resize(nTracks_);
+            spatialPositions_.resize(nTracks_);
+            for (int track = 0; track < nTracks_; track++)
+            {
+                spatialPositions_[track].resize(nChannels_);
+                signal_[track].resize(nChannels_);
+                for (int i=0; i<nChannels_; i++)
+                    signal_[track][i].assign(nSamples_,0.0);
+            }
+        }
+        else
+        {
+            LOUDNESS_ERROR("TrackBank: Input TrackBank not initialized!");
+            initialized_ = false;
+        }
+    }
+
     void TrackBank::clear()
     {
         for(int track = 0; track < nTracks_; track++)

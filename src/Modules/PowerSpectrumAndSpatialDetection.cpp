@@ -276,7 +276,7 @@ namespace loudness{
         }
         else
         {
-            LOUDNESS_ERROR(name_
+            LOUDNESS_ERROR(input.getNTracks()
                 << ": TrackBank must have an even number of tracks")
             return 0;
         }

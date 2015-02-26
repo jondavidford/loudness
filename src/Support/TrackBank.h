@@ -69,6 +69,11 @@ namespace loudness{
         void initialize(const TrackBank &input);
 
         /**
+         * @brief Resizes the TrackBank signal to have size nTracks
+         */
+        void resize(int nTracks);
+
+        /**
          * @brief Clears the contents of TrackBank and sets trig to 1.
          */
         void clear();
