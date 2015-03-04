@@ -112,6 +112,8 @@ namespace loudness{
          */
         void reset();
 
+        void resize(int nTracks);
+
         /**
          * @brief Adds a single target module to the object.  
          *
@@ -156,6 +158,7 @@ namespace loudness{
         virtual bool initializeInternal(const TrackBank &input) = 0;
         virtual void processInternal(const TrackBank &input) = 0;
         virtual void resetInternal() = 0;
+        virtual void resizeInternal(int nTracks) = 0;
 
         //members
         bool initialized_;

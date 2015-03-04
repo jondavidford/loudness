@@ -70,6 +70,11 @@ namespace loudness{
         modules_[0]->reset();
     }
 
+    void Model::resize(int nTracks)
+    {
+        modules_[0]->resize(nTracks);
+    }
+
     const TrackBank* Model::getModuleOutput(int module) const
     {
         if (module<nModules_)

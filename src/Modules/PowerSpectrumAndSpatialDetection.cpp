@@ -52,6 +52,8 @@ namespace loudness{
 
     bool PowerSpectrumAndSpatialDetection::initializeInternal(const TrackBank &input)
     {
+        LOUDNESS_WARNING(name_ 
+                        << ": nTracks: " << input.getNTracks());
         if (input.getNTracks() % 2 == 0)
         {
             //number of windows
@@ -292,6 +294,7 @@ namespace loudness{
             const int lIdx = track * 2;
             const int rIdx = track * 2 + 1;
             Real positionSum = 0;
+            Real intensitySum = 0;
             for(int i=0; i<nWindows_; i++)
             {
                 //fill the buffers
@@ -354,22 +357,27 @@ namespace loudness{
                         pos = (1.0 - (magL / magR)) * 90.0 + 90.0;
                     }
                     output_.setSpatialPosition(track, binWriteIdx, pos);
-                    positionSum += pos;
 
-                    // set outputs
+                    // calculate magnitude of output bin
                     real_[track][binWriteIdx] = reL + reR;
                     imag_[track][binWriteIdx] = imL + imR;
-                    output_.setSample(track, binWriteIdx, 0, pow((magL + magR) / 2, 2)); 
+                    const Real mag = pow((magL + magR) / 2, 2);
+
+                    // update weighted position sum
+                    intensitySum += mag;
+                    positionSum += pos * mag;
+
+                    output_.setSample(track, binWriteIdx, 0, mag); 
                     binWriteIdx++;
                 }
             }
 
             // calculate average position of track
-            avgPositions_[track] = positionSum / binWriteIdx;
+            avgPositions_[track] = positionSum / intensitySum;
         }
 
         // next sum tracks to create background masker tracks
-        Real separation, reduction;
+        Real separation, multiplier;
         for (int target = 0; target < nInputs_; target++)
         {
             // initialize masker track with 0's in real and imag components
@@ -383,11 +391,11 @@ namespace loudness{
                 if (target != masker)
                 {
                     separation = abs(avgPositions_[target] - avgPositions_[masker]);
-                    reduction = separationToReduction(separation);
+                    multiplier = pow(10, separationTodBReduction(separation) / 20);
                     for (int bin = 0; bin < nBins_; bin++)
                     {
-                        maskerReal_[bin] += real_[masker][bin] * reduction;
-                        maskerImag_[bin] += imag_[masker][bin] * reduction;
+                        maskerReal_[bin] += real_[masker][bin] * multiplier;
+                        maskerImag_[bin] += imag_[masker][bin] * multiplier;
                     }
                 }
             }

@@ -37,6 +37,8 @@ namespace loudness{
 
     bool IIR::initializeInternal(const TrackBank &input)
     {
+        LOUDNESS_WARNING(name_ 
+                        << ": nTracks: " << input.getNTracks());
         //constants
         int n_b = (int)bCoefs_.size();
         int n_a = (int)aCoefs_.size();
@@ -63,7 +65,7 @@ namespace loudness{
                 z_[i].assign(order_,0.0);
 
             //output TrackBank
-            output_.initialize(input.getNTracks(), input.getNChannels(), input.getNSamples(), input.getFs());
+            output_.initialize(input);
 
             return 1;
         }
@@ -101,6 +103,12 @@ namespace loudness{
 
     void IIR::resetInternal()
     {
+        resetDelayLine();
+    }
+
+    void IIR::resizeInternal(int nTracks)
+    {
+        setNTracks(nTracks);
         resetDelayLine();
     }
 

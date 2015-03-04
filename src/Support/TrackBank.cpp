@@ -38,6 +38,8 @@ namespace loudness{
     void TrackBank::initialize(int nTracks, int nChannels, int nSamples, int fs)
     {
         nTracks_ = nTracks;
+        LOUDNESS_WARNING("TrackBank initialize 0"
+                        << ": nTracks: " << getNTracks());
         nChannels_ = nChannels;
         nSamples_ = nSamples;
         fs_ = fs;
@@ -59,6 +61,8 @@ namespace loudness{
 
     void TrackBank::initialize(const TrackBank &input)
     {
+        LOUDNESS_WARNING("TrackBank initialize 1"
+                        << ": nTracks: " << input.getNTracks());
         if (input.isInitialized())
         {
             nTracks_ = input.getNTracks();
@@ -68,10 +72,13 @@ namespace loudness{
             frameRate_ = input.getFrameRate();
             initialized_ = true;
             centreFreqs_ = input.getCentreFreqs();
+            trig_.assign(nTracks_, 1);
             
+            signal_.resize(nTracks_);
+            spatialPositions_.resize(nTracks_);
             for (int track = 0; track < nTracks_; track++)
             {
-                trig_[track] = input.getTrig(track);
+                spatialPositions_[track].resize(nChannels_);
                 signal_[track].resize(nChannels_);
                 for (int i=0; i<nChannels_; i++)
                     signal_[track][i].assign(nSamples_,0.0);
@@ -89,6 +96,8 @@ namespace loudness{
         if (initialized_)
         {
             nTracks_ = nTracks;
+            LOUDNESS_WARNING("TrackBank resize"
+                        << ": nTracks: " << getNTracks());
             frameRate_ = fs_/(Real)nSamples_;
             trig_.assign(nTracks_, 1);
             initialized_ = true;
@@ -113,12 +122,16 @@ namespace loudness{
 
     void TrackBank::clear()
     {
+        LOUDNESS_WARNING("TrackBank clear"
+                        << ": nTracks: " << getNTracks());
+        /*
         for(int track = 0; track < nTracks_; track++)
         {
             for(int i=0; i<nChannels_; i++)
                 signal_[track][i].assign(nSamples_,0.0);
             trig_[track] = 1;
         }
+        */
     }
 
     void TrackBank::setFs(int fs)

@@ -70,6 +70,7 @@ namespace loudness{
             */
             virtual void processInternal(const TrackBank &input);
             virtual void resetInternal();
+            virtual void resizeInternal(int nTracks);
     };
 }
 

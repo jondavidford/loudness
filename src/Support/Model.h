@@ -86,6 +86,8 @@ namespace loudness{
         */
         void reset();
 
+        void resize(int nTracks);
+
         /**
          * @brief Returns the initialisation state.
          *

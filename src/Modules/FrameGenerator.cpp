@@ -33,6 +33,8 @@ namespace loudness{
 
     bool FrameGenerator::initializeInternal(const TrackBank &input)
     {
+        LOUDNESS_WARNING(name_ 
+                        << ": nTracks: " << input.getNTracks());
         if(hopSize_ > frameSize_)
         {
             LOUDNESS_ERROR(name_ 

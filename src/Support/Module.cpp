@@ -82,6 +82,18 @@ namespace loudness{
             targetModule_->reset();
     }
 
+    void Module::resize(int nTracks)
+    {
+        //clear output signal
+        if(output_.isInitialized())
+            output_.resize(nTracks);
+
+        //clear internal parameters
+        resizeInternal(nTracks);
+        if(targetModule_)
+            targetModule_->resize(nTracks);
+    }
+
     void Module::setTargetModule(Module *targetModule)
     {
         targetModule_ = targetModule;

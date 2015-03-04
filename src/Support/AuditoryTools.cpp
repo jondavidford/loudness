@@ -129,9 +129,9 @@ namespace loudness{
         }
     }
 
-    Real separationToReduction(Real separation)
+    Real separationTodBReduction(Real separation)
     {
-        return 1;
+        return  (-0.8185261 / 0.1026538) * (1 - exp(-0.1026538 * separation));
     }
     
     OME::OME(MiddleEarType middleEarType, OuterEarType outerEarType) :
