@@ -158,7 +158,7 @@ namespace loudness{
         virtual bool initializeInternal(const TrackBank &input) = 0;
         virtual void processInternal(const TrackBank &input) = 0;
         virtual void resetInternal() = 0;
-        virtual void resizeInternal(int nTracks) = 0;
+        //virtual void resizeInternal(int nTracks) = 0;
 
         //members
         bool initialized_;
