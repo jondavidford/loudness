@@ -15,6 +15,12 @@ To build the Python bindings you will need:
   - swig >= 3.0.0
   - python-numpy-dev
 
+## Build Instructions
+
+cd build
+make
+sudo make install
+
 ## Acknowledgments 
 
 The library interface is entirely based on the fantastic AIM-C:
